@@ -139,6 +139,27 @@ install_and_test.bat
 
 ---
 
+## 💰 **Business Model: Personal Sales + GitHub Demo**
+
+### **GitHub Version (Current)**
+- **Purpose**: Marketing and lead generation
+- **Features**: Basic functionality, limited context
+- **Cost**: Free
+- **Goal**: Drive traffic to sales site
+
+### **Personal Sales Version**
+- **Purpose**: Revenue generation
+- **Features**: Full functionality, premium models
+- **Cost**: One-time purchase per user
+- **Target**: Individual students, developers, researchers
+
+### **No Enterprise Licensing**
+- **Focus**: Personal use only
+- **Simple**: One-time purchase, no subscriptions
+- **Clear**: No enterprise complexity
+
+---
+
 ## 🎉 **MVP Achievement Summary**
 
 ### **Before (Skeleton)**
@@ -176,8 +197,8 @@ install_and_test.bat
 ### **Long Term (v2.0)**
 - Fine-tuning capabilities
 - Multi-modal support
-- Cloud sync (optional)
-- Enterprise features
+- Premium model tiers
+- Enhanced performance features
 
 ---
 
@@ -191,9 +212,9 @@ install_and_test.bat
 4. ✅ **One-time model download with validation** - IMPLEMENTED
 5. ✅ **Cross-platform support** - IMPLEMENTED
 
-**The MVP is now ready for real-world use and provides a solid foundation for future development.**
+**The MVP is now ready for real-world use and provides a solid foundation for personal sales strategy.**
 
 ---
 
 *Last updated: August 11, 2025*  
-*Status: MVP Complete - Ready for Testing* 🎯 
+*Status: MVP Complete - Ready for Personal Sales Strategy* 🎯 

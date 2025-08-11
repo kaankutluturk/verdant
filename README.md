@@ -66,7 +66,7 @@ python lumina.py --interactive
 
 ### **Option 1: Quick & Dirty (Recommended)**
 ```bash
-git clone https://github.com/yourusername/lumina.git
+git clone https://github.com/kaankutluturk/lumina.git
 cd lumina && pip install -r requirements.txt && python lumina.py --setup
 ```
 
@@ -131,10 +131,10 @@ python lumina.py --threads 8 --context 4096
 - Multiple models
 - Plugin system
 
-### **Phase 4: Enterprise (3+ months)**
-- Installer packages
-- Premium models
-- Cloud-hybrid options
+### **Phase 4: Premium Features (3+ months)**
+- Advanced models (13B, 30B)
+- Professional tools
+- Enhanced performance
 
 ## 🤝 **Join the Revolution**
 
@@ -150,7 +150,7 @@ python lumina.py --threads 8 --context 4096
 
 - **16 files** with **1590+ lines** of working code
 - **100% Python** (no JavaScript BS)
-- **MIT License with Commercial Restrictions** (protects your interests)
+- **MIT License with Personal Use Focus** (protects your interests)
 - **Cross-platform** (Windows, Mac, Linux)
 - **Active development** (not abandoned)
 
@@ -164,7 +164,7 @@ python lumina.py --threads 8 --context 4096
 
 ## 📜 **License That Protects Your Interests**
 
-**MIT License with Commercial Restrictions:**
+**MIT License with Personal Use Focus:**
 - ✅ **Personal use** - Use for your own projects
 - ✅ **Educational use** - Use for learning and teaching
 - ❌ **Commercial use** - Requires separate license
@@ -173,8 +173,19 @@ python lumina.py --threads 8 --context 4096
 
 **For Commercial Use**: Contact lumina@yourproject.com for licensing
 
+## 💰 **Get the Full Experience**
+
+**This GitHub version is a demo with basic features. For the complete Lumina experience:**
+
+- 🚀 **Full performance** - Maximum speed and context
+- 🧠 **Advanced models** - 13B, 30B, and specialized models
+- 🎨 **Professional tools** - GUI, batch processing, plugins
+- 📚 **Premium support** - Direct help and updates
+
+**Visit our website for the full version!**
+
 ---
 
 **✨ Made for students who refuse to compromise on privacy, performance, or principles.**
 
-**Get Started • [Documentation](USAGE_GUIDE.md) • [Issues](https://github.com/yourusername/lumina/issues)**
+**Get Started • [Documentation](USAGE_GUIDE.md) • [Issues](https://github.com/kaankutluturk/lumina/issues)**

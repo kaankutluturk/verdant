@@ -226,6 +226,19 @@ In the future, you'll be able to switch between different models for different t
 
 ---
 
+## 💰 **Get the Full Experience**
+
+**This GitHub version is a demo with basic features. For the complete Lumina experience:**
+
+- 🚀 **Full performance** - Maximum speed and context
+- 🧠 **Advanced models** - 13B, 30B, and specialized models
+- 🎨 **Professional tools** - GUI, batch processing, plugins
+- 📚 **Premium support** - Direct help and updates
+
+**Visit our website for the full version!**
+
+---
+
 ## 🆘 Getting Help
 
 ### **Documentation**
