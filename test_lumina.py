@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test script for EcoAI MVP functionality.
+Test script for Lumina MVP functionality.
 Run this to verify the implementation works correctly.
 """
 
@@ -10,7 +10,7 @@ from pathlib import Path
 # Add current directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
-from ecoai import HardwareDetector, ModelDownloader
+from lumina import HardwareDetector, ModelDownloader
 
 def test_hardware_detection():
     """Test hardware detection functionality."""
@@ -47,7 +47,7 @@ def test_model_downloader():
 
 def main():
     """Run all tests."""
-    print("🚀 EcoAI MVP Test Suite")
+    print("🚀 Lumina MVP Test Suite")
     print("=" * 40)
     
     tests = [
@@ -67,10 +67,10 @@ def main():
     print(f"📊 Test Results: {passed}/{total} tests passed")
     
     if passed == total:
-        print("🎉 All tests passed! EcoAI is ready to use.")
+        print("🎉 All tests passed! Lumina is ready to use.")
         print("\nNext steps:")
-        print("1. Run: python ecoai.py --setup")
-        print("2. Run: python ecoai.py --interactive")
+        print("1. Run: python lumina.py --setup")
+        print("2. Run: python lumina.py --interactive")
     else:
         print("❌ Some tests failed. Please check the errors above.")
     

@@ -1,4 +1,4 @@
-# 📖 EcoAI Usage Guide
+# 📖 Lumina Usage Guide
 
 ## 🚀 Quick Start
 
@@ -9,17 +9,17 @@ pip install -r requirements.txt
 
 ### **Step 2: Test Installation**
 ```bash
-python test_ecoai.py
+python test_lumina.py
 ```
 
 ### **Step 3: Download Model**
 ```bash
-python ecoai.py --setup
+python lumina.py --setup
 ```
 
 ### **Step 4: Start Using**
 ```bash
-python ecoai.py --interactive
+python lumina.py --interactive
 ```
 
 ---
@@ -29,37 +29,37 @@ python ecoai.py --interactive
 ### **Setup & Installation**
 ```bash
 # Download and setup the AI model
-python ecoai.py --setup
+python lumina.py --setup
 
 # Download specific model
-python ecoai.py --setup --model mistral-7b-q4
+python lumina.py --setup --model mistral-7b-q4
 ```
 
 ### **Interactive Mode**
 ```bash
 # Start interactive chat
-python ecoai.py --interactive
+python lumina.py --interactive
 
 # Use specific model
-python ecoai.py --interactive --model mistral-7b-q4
+python lumina.py --interactive --model mistral-7b-q4
 ```
 
 ### **Single Prompt**
 ```bash
 # Process a single prompt
-python ecoai.py --prompt "Your question here"
+python lumina.py --prompt "Your question here"
 
 # Use specific model
-python ecoai.py --prompt "Your question" --model mistral-7b-q4
+python lumina.py --prompt "Your question" --model mistral-7b-q4
 ```
 
 ### **Help & Information**
 ```bash
 # Show help
-python ecoai.py --help
+python lumina.py --help
 
 # Show version info
-python ecoai.py --version
+python lumina.py --version
 ```
 
 ---
@@ -84,7 +84,7 @@ Once you're in interactive mode, you can use these commands:
 ```
 👤 You: Help me paraphrase this text: "The study shows that social media affects students badly."
 
-🤖 EcoAI: Here are some alternative phrasings:
+🤖 Lumina: Here are some alternative phrasings:
 1. "Research indicates that social media negatively impacts student performance."
 2. "The research demonstrates adverse effects of social media on students."
 3. "Studies reveal that social media has detrimental consequences for students."
@@ -94,14 +94,14 @@ Once you're in interactive mode, you can use these commands:
 ```
 👤 You: Fix the grammar in this sentence: "Me and him went to the store."
 
-🤖 EcoAI: The correct version is: "He and I went to the store."
+🤖 Lumina: The correct version is: "He and I went to the store."
 ```
 
 ### **Summarization**
 ```
 👤 You: Summarize this paragraph in 2 sentences: [long paragraph text]
 
-🤖 EcoAI: [concise summary in 2 sentences]
+🤖 Lumina: [concise summary in 2 sentences]
 ```
 
 ---
@@ -109,11 +109,11 @@ Once you're in interactive mode, you can use these commands:
 ## ⚙️ Performance Optimization
 
 ### **Hardware Detection**
-EcoAI automatically detects your system capabilities:
+Lumina automatically detects your system capabilities:
 
-- **High Performance** (16GB+ RAM, 8+ cores): 4096 context, max threads
-- **Medium Performance** (8GB+ RAM, 4+ cores): 2048 context, optimized threads  
-- **Low Performance** (<8GB RAM): 1024 context, conservative threads
+- **High Performance**: 16GB+ RAM, 8+ cores → 4096 context, max threads
+- **Medium Performance**: 8GB+ RAM, 4+ cores → 2048 context, optimized threads  
+- **Low Performance**: <8GB RAM → 1024 context, conservative threads
 
 ### **Performance Tips**
 1. **Close other applications** to free up RAM
@@ -134,7 +134,7 @@ pip install llama-cpp-python
 
 #### **"Model not found"**
 ```bash
-python ecoai.py --setup
+python lumina.py --setup
 ```
 
 #### **"Insufficient RAM"**
@@ -209,16 +209,16 @@ python ecoai.py --setup
 Create your own prompt templates:
 
 ```bash
-python ecoai.py --prompt "You are an expert academic writer. Help me improve this paragraph: [your text]"
+python lumina.py --prompt "You are an expert academic writer. Help me improve this paragraph: [your text]"
 ```
 
 ### **Batch Processing**
 Process multiple prompts:
 
 ```bash
-python ecoai.py --prompt "First question"
-python ecoai.py --prompt "Second question"
-python ecoai.py --prompt "Third question"
+python lumina.py --prompt "First question"
+python lumina.py --prompt "Second question"
+python lumina.py --prompt "Third question"
 ```
 
 ### **Model Switching**
@@ -234,7 +234,7 @@ In the future, you'll be able to switch between different models for different t
 - `docs/` - Additional documentation
 
 ### **Testing**
-- `test_ecoai.py` - Run tests to verify functionality
+- `test_lumina.py` - Run tests to verify functionality
 - `demo.py` - See features in action
 
 ### **Examples**
@@ -251,4 +251,4 @@ You now have a fully functional local AI assistant that:
 - ✅ Works offline
 - ✅ Provides academic writing help
 
-**Happy learning with EcoAI! 🌱** 
+**Happy learning with Lumina! ✨** 

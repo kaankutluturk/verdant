@@ -1,8 +1,8 @@
 @echo off
-echo 🌱 EcoAI Installation Script
+echo ✨ Lumina Installation Script
 echo ===========================
 echo.
-echo This script will install EcoAI and its dependencies.
+echo This script will install Lumina and its dependencies.
 echo.
 echo Press any key to continue...
 pause >nul

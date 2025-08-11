@@ -1,4 +1,4 @@
-# 🚀 EcoAI MVP Project Status
+# 🚀 Lumina MVP Project Status
 
 ## 📊 **Current Status: WORKING MVP** ✅
 
@@ -64,17 +64,17 @@
 
 ### **File Structure**
 ```
-ecoai-main/
-├── ecoai.py              # Main application (MVP)
-├── test_ecoai.py         # Test suite
-├── demo.py               # Feature demonstration
-├── requirements.txt      # Python dependencies
-├── install_and_test.ps1  # Windows installation script
-├── install_and_test.bat  # Windows batch file
-├── README.md             # Updated documentation
-├── PROJECT_STATUS.md     # This file
-├── docs/                 # Documentation
-└── examples/             # Usage examples
+lumina/
+├── lumina.py              # Main application (MVP)
+├── test_lumina.py         # Test suite
+├── demo.py                # Feature demonstration
+├── requirements.txt       # Python dependencies
+├── install_and_test.ps1   # Windows installation script
+├── install_and_test.bat   # Windows batch file
+├── README.md              # Updated documentation
+├── PROJECT_STATUS.md      # This file
+├── docs/                  # Documentation
+└── examples/              # Usage examples
 ```
 
 ---
@@ -122,13 +122,13 @@ ecoai-main/
 pip install -r requirements.txt
 
 # 2. Test the installation
-python test_ecoai.py
+python test_lumina.py
 
 # 3. Setup (downloads model)
-python ecoai.py --setup
+python lumina.py --setup
 
 # 4. Start chatting
-python ecoai.py --interactive
+python lumina.py --interactive
 ```
 
 ### **Windows Users**
@@ -183,7 +183,7 @@ install_and_test.bat
 
 ## 🏆 **Conclusion**
 
-**EcoAI has successfully evolved from a skeleton project to a fully functional MVP that delivers on all its core promises:**
+**Lumina has successfully evolved from a skeleton project to a fully functional MVP that delivers on all its core promises:**
 
 1. ✅ **Local inference with Mistral 7B (quantized)** - IMPLEMENTED
 2. ✅ **Auto hardware detection and optimization** - IMPLEMENTED  

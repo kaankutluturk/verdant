@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-EcoAI MVP Demo Script
+Lumina MVP Demo Script
 This script demonstrates the working features without requiring the full model download.
 """
 
@@ -16,7 +16,7 @@ def demo_hardware_detection():
     print("=" * 40)
     
     try:
-        from ecoai import HardwareDetector
+        from lumina import HardwareDetector
         
         # Get system info
         info = HardwareDetector.get_system_info()
@@ -50,7 +50,7 @@ def demo_model_management():
     print("=" * 40)
     
     try:
-        from ecoai import ModelDownloader, MODELS
+        from lumina import ModelDownloader, MODELS
         
         # Show available models
         print("Available Models:")
@@ -72,7 +72,7 @@ def demo_model_management():
             print(f"✅ Model already downloaded: {model_path}")
         else:
             print(f"📥 Model not downloaded yet")
-            print(f"   Run 'python ecoai.py --setup' to download")
+            print(f"   Run 'python lumina.py --setup' to download")
         
         return True
         
@@ -86,7 +86,7 @@ def demo_cli_interface():
     print("=" * 40)
     
     try:
-        from ecoai import main
+        from lumina import main
         import argparse
         
         print("Available Commands:")
@@ -97,9 +97,9 @@ def demo_cli_interface():
         print("  --help        Show help information")
         
         print("\nExample Usage:")
-        print("  python ecoai.py --setup")
-        print("  python ecoai.py --interactive")
-        print("  python ecoai.py --prompt 'Hello, how are you?'")
+        print("  python lumina.py --setup")
+        print("  python lumina.py --interactive")
+        print("  python lumina.py --prompt 'Hello, how are you?'")
         
         return True
         
@@ -132,9 +132,9 @@ def demo_cross_platform():
 
 def main():
     """Run all demos."""
-    print("🚀 EcoAI MVP Feature Demo")
+    print("🚀 Lumina MVP Feature Demo")
     print("=" * 50)
-    print("This demo shows the working features of EcoAI MVP")
+    print("This demo shows the working features of Lumina MVP")
     print("without requiring the full model download.")
     print()
     
@@ -161,11 +161,11 @@ def main():
     print(f"📊 Demo Results: {passed}/{total} demos passed")
     
     if passed == total:
-        print("\n🎉 All demos passed! EcoAI MVP is working correctly.")
+        print("\n🎉 All demos passed! Lumina MVP is working correctly.")
         print("\n📖 To get started with the full AI experience:")
         print("   1. Install dependencies: pip install -r requirements.txt")
-        print("   2. Download model: python ecoai.py --setup")
-        print("   3. Start chatting: python ecoai.py --interactive")
+        print("   2. Download model: python lumina.py --setup")
+        print("   3. Start chatting: python lumina.py --interactive")
     else:
         print(f"\n⚠️  {total - passed} demo(s) failed. Please check the errors above.")
     

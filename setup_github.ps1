@@ -1,7 +1,7 @@
-# EcoAI GitHub Setup Script
-# This script helps you push your EcoAI MVP to GitHub
+# Lumina GitHub Setup Script
+# This script helps you push your Lumina MVP to GitHub
 
-Write-Host "🚀 EcoAI GitHub Setup" -ForegroundColor Green
+Write-Host "🚀 Lumina GitHub Setup" -ForegroundColor Green
 Write-Host "=====================" -ForegroundColor Green
 
 Write-Host "`n📋 Before running this script:" -ForegroundColor Yellow
@@ -32,7 +32,7 @@ try {
         Write-Host "✅ Remote origin added successfully!" -ForegroundColor Green
         
         Write-Host "`n📤 Pushing to GitHub..." -ForegroundColor Yellow
-        git push -u origin master
+        git push -u origin main
         
         if ($LASTEXITCODE -eq 0) {
             Write-Host "`n🎉 Successfully pushed to GitHub!" -ForegroundColor Green

@@ -1,4 +1,4 @@
-# 🌱 EcoAI - The Ultimate Local AI Assistant
+# ✨ Lumina - The Ultimate Local AI Assistant
 
 > **🚀 The ONLY privacy-first AI that runs entirely on your laptop. No cloud, no subscriptions, no data mining. 100% offline after setup.**
 
@@ -6,7 +6,7 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Status: MVP](https://img.shields.io/badge/status-MVP-orange.svg)]()
 
-## ⚡ **Why EcoAI? Because Privacy & Performance Matter!**
+## ⚡ **Why Lumina? Because Privacy & Performance Matter!**
 
 - 🔒 **100% Private** - Your data NEVER leaves your device
 - 🌍 **95% Less Energy** than cloud AI services  
@@ -28,13 +28,13 @@
 
 ```bash
 # 1. Install & Test
-pip install -r requirements.txt && python test_ecoai.py
+pip install -r requirements.txt && python test_lumina.py
 
 # 2. Download Model (one-time, ~4GB)
-python ecoai.py --setup
+python lumina.py --setup
 
 # 3. Start Chatting!
-python ecoai.py --interactive
+python lumina.py --interactive
 ```
 
 **That's it! No complex setup, no dependencies hell, just pure AI power.**
@@ -54,7 +54,7 @@ python ecoai.py --interactive
 
 ## 🎓 **Academic Superpowers**
 
-**What EcoAI Does Better Than Anyone Else:**
+**What Lumina Does Better Than Anyone Else:**
 
 - **Paraphrasing**: Transform "The study shows social media affects students badly" → "Research indicates social media platforms have detrimental impacts on student well-being"
 - **Grammar Fixing**: "There going to the libary tommorow" → "They're going to the library tomorrow"
@@ -66,38 +66,38 @@ python ecoai.py --interactive
 
 ### **Option 1: Quick & Dirty (Recommended)**
 ```bash
-git clone https://github.com/kaankutluturk/ecoai.git
-cd ecoai && pip install -r requirements.txt && python ecoai.py --setup
+git clone https://github.com/yourusername/lumina.git
+cd lumina && pip install -r requirements.txt && python lumina.py --setup
 ```
 
 ### **Option 2: Manual Control**
 ```bash
 pip install llama-cpp-python psutil requests
-python ecoai.py --setup
+python lumina.py --setup
 ```
 
 ## 🎮 **Usage That Just Works**
 
 ### **Interactive Mode (Most Fun)**
 ```bash
-python ecoai.py --interactive
+python lumina.py --interactive
 ```
 
 ### **Single Shot (For Scripts)**
 ```bash
-python ecoai.py --prompt "Your question here"
+python lumina.py --prompt "Your question here"
 ```
 
 ### **Power User Mode**
 ```bash
-python ecoai.py --threads 8 --context 4096
+python lumina.py --threads 8 --context 4096
 ```
 
 ## 🏗️ **Architecture That Doesn't Suck**
 
 ```
 ┌─────────────┐    ┌──────────────┐    ┌─────────────┐
-│   You       │───▶│  EcoAI Core  │───▶│  Mistral    │
+│   You       │───▶│  Lumina Core │───▶│  Mistral    │
 │  (CLI/GUI)  │    │  (Smart AF)  │    │  7B-Q4     │
 └─────────────┘    └──────────────┘    └─────────────┘
 ```
@@ -110,7 +110,7 @@ python ecoai.py --threads 8 --context 4096
 
 ## 🌍 **Environmental Impact That Matters**
 
-**EcoAI vs Cloud AI (The Truth):**
+**Lumina vs Cloud AI (The Truth):**
 - ⚡ **Energy**: 95% less than cloud inference
 - 🌱 **Carbon**: Minimal footprint after download
 - 📡 **Network**: Zero traffic after setup
@@ -159,7 +159,7 @@ python ecoai.py --threads 8 --context 4096
 | Problem | Solution | Why It Happens |
 |---------|----------|----------------|
 | "llama-cpp-python not installed" | `pip install llama-cpp-python` | You skipped step 1 |
-| "Model not found" | `python ecoai.py --setup` | You skipped step 2 |
+| "Model not found" | `python lumina.py --setup` | You skipped step 2 |
 | Slow performance | Close other apps | Your PC is multitasking |
 
 ## 📜 **License That Protects Your Interests**
@@ -171,10 +171,10 @@ python ecoai.py --threads 8 --context 4096
 - ❌ **Selling/Redistribution** - Strictly prohibited
 - ❌ **Commercial licensing** - Contact for terms
 
-**For Commercial Use**: Contact ecoai@yourproject.com for licensing
+**For Commercial Use**: Contact lumina@yourproject.com for licensing
 
 ---
 
-**🌱 Made for students who refuse to compromise on privacy, performance, or principles.**
+**✨ Made for students who refuse to compromise on privacy, performance, or principles.**
 
-**Get Started • [Documentation](USAGE_GUIDE.md) • [Issues](https://github.com/kaankutluturk/ecoai/issues)**
+**Get Started • [Documentation](USAGE_GUIDE.md) • [Issues](https://github.com/yourusername/lumina/issues)**

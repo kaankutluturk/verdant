@@ -1,7 +1,7 @@
-# EcoAI Installation and Test Script for Windows
+# Lumina Installation and Test Script for Windows
 # Run this in PowerShell as Administrator if needed
 
-Write-Host "🌱 EcoAI Installation and Test Script" -ForegroundColor Green
+Write-Host "✨ Lumina Installation and Test Script" -ForegroundColor Green
 Write-Host "=====================================" -ForegroundColor Green
 
 # Check if Python is installed
@@ -54,14 +54,14 @@ try {
 }
 
 # Test the installation
-Write-Host "`n🧪 Testing EcoAI installation..." -ForegroundColor Yellow
+Write-Host "`n🧪 Testing Lumina installation..." -ForegroundColor Yellow
 try {
-    python test_ecoai.py
+    python test_lumina.py
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "`n🎉 All tests passed! EcoAI is ready to use." -ForegroundColor Green
+        Write-Host "`n🎉 All tests passed! Lumina is ready to use." -ForegroundColor Green
         Write-Host "`n📖 Next steps:" -ForegroundColor Cyan
-        Write-Host "   1. Run: python ecoai.py --setup" -ForegroundColor White
-        Write-Host "   2. Run: python ecoai.py --interactive" -ForegroundColor White
+        Write-Host "   1. Run: python lumina.py --setup" -ForegroundColor White
+        Write-Host "   2. Run: python lumina.py --interactive" -ForegroundColor White
     } else {
         Write-Host "`n❌ Some tests failed. Please check the errors above." -ForegroundColor Red
     }
