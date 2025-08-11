@@ -2,7 +2,7 @@
 
 > **🚀 The ONLY privacy-first AI that runs entirely on your laptop. No cloud, no subscriptions, no data mining. 100% offline after setup.**
 
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License: MIT with Commercial Restrictions](https://img.shields.io/badge/License-MIT%20with%20Commercial%20Restrictions-red.svg)](LICENSE)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Status: MVP](https://img.shields.io/badge/status-MVP-orange.svg)]()
 
@@ -150,7 +150,7 @@ python ecoai.py --threads 8 --context 4096
 
 - **16 files** with **1590+ lines** of working code
 - **100% Python** (no JavaScript BS)
-- **Apache 2.0** license (use it commercially)
+- **MIT License with Commercial Restrictions** (protects your interests)
 - **Cross-platform** (Windows, Mac, Linux)
 - **Active development** (not abandoned)
 
@@ -162,14 +162,16 @@ python ecoai.py --threads 8 --context 4096
 | "Model not found" | `python ecoai.py --setup` | You skipped step 2 |
 | Slow performance | Close other apps | Your PC is multitasking |
 
-## 📜 **License That Doesn't Screw You**
+## 📜 **License That Protects Your Interests**
 
-**Apache 2.0 - Use it for anything:**
-- ✅ Personal projects
-- ✅ Commercial projects  
-- ✅ Modify and redistribute
-- ✅ Patent protection included
-- ✅ No attribution required
+**MIT License with Commercial Restrictions:**
+- ✅ **Personal use** - Use for your own projects
+- ✅ **Educational use** - Use for learning and teaching
+- ❌ **Commercial use** - Requires separate license
+- ❌ **Selling/Redistribution** - Strictly prohibited
+- ❌ **Commercial licensing** - Contact for terms
+
+**For Commercial Use**: Contact ecoai@yourproject.com for licensing
 
 ---
 
