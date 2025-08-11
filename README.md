@@ -2,7 +2,7 @@
 
 > **🚀 The ONLY privacy-first AI that runs entirely on your laptop. No cloud, no subscriptions, no data mining. 100% offline after setup.**
 
-[![License: MIT with Commercial Restrictions](https://img.shields.io/badge/License-MIT%20with%20Commercial%20Restrictions-red.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Status: MVP](https://img.shields.io/badge/status-MVP-orange.svg)]()
 
@@ -150,7 +150,7 @@ python lumina.py --threads 8 --context 4096
 
 - **16 files** with **1590+ lines** of working code
 - **100% Python** (no JavaScript BS)
-- **MIT License with Personal Use Focus** (protects your interests)
+- **MIT License** (simple and clear)
 - **Cross-platform** (Windows, Mac, Linux)
 - **Active development** (not abandoned)
 
@@ -162,16 +162,13 @@ python lumina.py --threads 8 --context 4096
 | "Model not found" | `python lumina.py --setup` | You skipped step 2 |
 | Slow performance | Close other apps | Your PC is multitasking |
 
-## 📜 **License That Protects Your Interests**
+## 📜 **Simple License**
 
-**MIT License with Personal Use Focus:**
+**MIT License - Simple and Clear:**
 - ✅ **Personal use** - Use for your own projects
 - ✅ **Educational use** - Use for learning and teaching
-- ❌ **Commercial use** - Requires separate license
-- ❌ **Selling/Redistribution** - Strictly prohibited
-- ❌ **Commercial licensing** - Contact for terms
-
-**For Commercial Use**: Contact lumina@yourproject.com for licensing
+- ✅ **Modify and share** - Open source freedom
+- ✅ **No attribution required** - Use it however you want
 
 ## 💰 **Get the Full Experience**
 
