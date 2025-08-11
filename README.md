@@ -1,188 +1,209 @@
-# ✨ Lumina - The Ultimate Local AI Assistant
+# Lumina - Local AI Assistant
 
-> **🚀 The ONLY privacy-first AI that runs entirely on your laptop. No cloud, no subscriptions, no data mining. 100% offline after setup.**
+> **Privacy-first AI that runs entirely on your laptop. No cloud, no subscriptions, no data mining. 100% offline after setup.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Status: MVP](https://img.shields.io/badge/status-MVP-orange.svg)]()
 
-## ⚡ **Why Lumina? Because Privacy & Performance Matter!**
+## What is Lumina?
 
-- 🔒 **100% Private** - Your data NEVER leaves your device
-- 🌍 **95% Less Energy** than cloud AI services  
-- 💰 **Zero Monthly Fees** - One-time setup, lifetime use
-- 🚀 **Lightning Fast** - Optimized for YOUR hardware
-- 📚 **Academic Powerhouse** - Built specifically for students
+Lumina is a local AI assistant that runs entirely on your device. It's designed for students and developers who need AI assistance without compromising privacy or relying on cloud services.
 
-## 🎯 **What Makes Us Special**
+**Key Features:**
+- **Privacy**: Your data never leaves your device
+- **Efficiency**: 95% less energy usage than cloud AI
+- **Cost**: One-time setup, no monthly fees
+- **Performance**: Optimized for your hardware
+- **Academic Focus**: Built specifically for educational tasks
 
-**We're not just another AI tool - we're THE local AI solution:**
+## Core Capabilities
 
-✅ **Mistral 7B Instruct** running locally with llama.cpp optimization  
-✅ **Smart Hardware Detection** that auto-configures for peak performance  
-✅ **Interactive CLI** that actually works (not just promises)  
-✅ **One-Click Model Download** with validation and progress tracking  
-✅ **Cross-Platform Magic** - Windows, macOS, Linux, all optimized  
+**AI Inference:**
+- Mistral 7B Instruct (Q4 quantized) running locally
+- llama.cpp integration for efficient performance
+- Hardware-optimized settings based on your system
 
-## 🚀 **Get Started in 30 Seconds**
+**Hardware Detection:**
+- Automatic RAM and CPU detection
+- Dynamic configuration for optimal performance
+- Performance tier classification (High/Medium/Low)
+
+**User Interface:**
+- Command-line interface with interactive mode
+- Single prompt processing for scripts
+- Cross-platform support (Windows, macOS, Linux)
+
+## Quick Start
 
 ```bash
-# 1. Install & Test
-pip install -r requirements.txt && python test_lumina.py
+# 1. Install dependencies
+pip install -r requirements.txt
 
-# 2. Download Model (one-time, ~4GB)
+# 2. Test installation
+python test_lumina.py
+
+# 3. Download model (one-time, ~4GB)
 python lumina.py --setup
 
-# 3. Start Chatting!
+# 4. Start using
 python lumina.py --interactive
 ```
 
-**That's it! No complex setup, no dependencies hell, just pure AI power.**
+## Performance
 
-## 💪 **Performance That Actually Delivers**
+| Hardware Tier | RAM | CPU | Context | Speed |
+|---------------|-----|-----|---------|-------|
+| **High** | 16GB+ | 8+ cores | 4096 | ~15 tok/sec |
+| **Medium** | 8GB+ | 4+ cores | 2048 | ~8 tok/sec |
+| **Low** | <8GB | Any | 1024 | ~4 tok/sec |
 
-| Hardware Tier | RAM | CPU | Context | Speed | What You Get |
-|---------------|-----|-----|---------|-------|--------------|
-| **Beast Mode** | 16GB+ | 8+ cores | 4096 | ~15 tok/sec | Desktop-class performance |
-| **Sweet Spot** | 8GB+ | 4+ cores | 2048 | ~8 tok/sec | Perfect for daily use |
-| **Efficient** | <8GB | Any | 1024 | ~4 tok/sec | Still faster than cloud |
+**Benchmarks:**
+- MacBook Air M1: ~8 tok/sec, 4GB RAM usage
+- ThinkPad X1: ~6 tok/sec, 5GB RAM usage  
+- Gaming PC: ~15 tok/sec, 6GB RAM usage
 
-**Real benchmarks from real users:**
-- **MacBook Air M1**: ~8 tok/sec, 4GB RAM usage
-- **ThinkPad X1**: ~6 tok/sec, 5GB RAM usage  
-- **Gaming PC**: ~15 tok/sec, 6GB RAM usage
+## Academic Tasks
 
-## 🎓 **Academic Superpowers**
+Lumina excels at common academic writing tasks:
 
-**What Lumina Does Better Than Anyone Else:**
+- **Paraphrasing**: Rewrite text in different styles
+- **Grammar Fixing**: Correct spelling and punctuation
+- **Style Adjustment**: Switch between formal and casual tones
+- **Summarization**: Condense long texts
+- **Citation Help**: Format references properly
 
-- **Paraphrasing**: Transform "The study shows social media affects students badly" → "Research indicates social media platforms have detrimental impacts on student well-being"
-- **Grammar Fixing**: "There going to the libary tommorow" → "They're going to the library tomorrow"
-- **Style Switching**: Formal ↔ Casual ↔ Academic in seconds
-- **Summarization**: Condense long texts without losing meaning
-- **Citation Help**: Format references properly every time
+## Installation
 
-## 🔧 **Installation Options**
-
-### **Option 1: Quick & Dirty (Recommended)**
+### Option 1: Quick Install
 ```bash
 git clone https://github.com/kaankutluturk/lumina.git
 cd lumina && pip install -r requirements.txt && python lumina.py --setup
 ```
 
-### **Option 2: Manual Control**
+### Option 2: Manual Install
 ```bash
 pip install llama-cpp-python psutil requests
 python lumina.py --setup
 ```
 
-## 🎮 **Usage That Just Works**
+## Usage
 
-### **Interactive Mode (Most Fun)**
+### Interactive Mode
 ```bash
 python lumina.py --interactive
 ```
 
-### **Single Shot (For Scripts)**
+### Single Prompt
 ```bash
 python lumina.py --prompt "Your question here"
 ```
 
-### **Power User Mode**
+### Performance Tuning
 ```bash
 python lumina.py --threads 8 --context 4096
 ```
 
-## 🏗️ **Architecture That Doesn't Suck**
+## Architecture
 
 ```
 ┌─────────────┐    ┌──────────────┐    ┌─────────────┐
-│   You       │───▶│  Lumina Core │───▶│  Mistral    │
-│  (CLI/GUI)  │    │  (Smart AF)  │    │  7B-Q4     │
+│   User      │───▶│  Lumina Core │───▶│  Mistral    │
+│  (CLI)      │    │  (Hardware   │    │  7B-Q4     │
+│             │    │   Detection) │    │  (llama.cpp)│
 └─────────────┘    └──────────────┘    └─────────────┘
 ```
 
-**Built with:**
+**Technology Stack:**
 - **Model**: Mistral 7B Instruct (4-bit quantized, 3.8GB)
-- **Engine**: llama.cpp (the fastest inference engine)
-- **Detection**: Smart hardware detection with psutil
-- **Interface**: Clean CLI that doesn't make you cry
+- **Engine**: llama.cpp (optimized C++ implementation)
+- **Detection**: Python psutil + platform detection
+- **Interface**: Python CLI
 
-## 🌍 **Environmental Impact That Matters**
+## Environmental Impact
 
-**Lumina vs Cloud AI (The Truth):**
-- ⚡ **Energy**: 95% less than cloud inference
-- 🌱 **Carbon**: Minimal footprint after download
-- 📡 **Network**: Zero traffic after setup
-- 🖥️ **Servers**: None needed, ever
+**Lumina vs Cloud AI:**
+- Energy: 95% less than cloud inference
+- Carbon: Minimal footprint after download
+- Network: Zero traffic after setup
+- Servers: None required
 
-## 🗺️ **Roadmap That's Actually Realistic**
+## Development Roadmap
 
-### **Phase 1: MVP ✅ DONE** 
-*Everything above is working RIGHT NOW*
+### Phase 1: MVP ✅ Complete
+- Core inference engine
+- Basic CLI interface
+- Hardware optimization
+- Model management
 
-### **Phase 2: UX (4 weeks)**
-- GUI interface (tkinter/Qt)
+### Phase 2: User Experience (4 weeks)
+- GUI interface
 - Preset templates
 - Performance benchmarking
 
-### **Phase 3: Power (2-3 months)**
+### Phase 3: Advanced Features (2-3 months)
 - Document processing
 - Multiple models
 - Plugin system
 
-### **Phase 4: Premium Features (3+ months)**
+### Phase 4: Premium Features (3+ months)
 - Advanced models (13B, 30B)
 - Professional tools
 - Enhanced performance
 
-## 🤝 **Join the Revolution**
+## Contributing
 
-**We're building the future of local AI. Here's how you can help:**
+We welcome contributions:
 
-🐛 **Report bugs** (we actually fix them)  
-💡 **Suggest features** (we actually listen)  
-📝 **Improve docs** (we actually merge)  
-🧪 **Test on hardware** (we actually optimize)  
-⭐ **Star the repo** (it helps more than you think)
+- Report bugs and issues
+- Suggest new features
+- Improve documentation
+- Test on different hardware
+- Star the repository
 
-## 📊 **Stats That Don't Lie**
+## System Requirements
 
-- **16 files** with **1590+ lines** of working code
-- **100% Python** (no JavaScript BS)
-- **MIT License** (simple and clear)
-- **Cross-platform** (Windows, Mac, Linux)
-- **Active development** (not abandoned)
+### Minimum
+- RAM: 8GB (6GB for model + 2GB for system)
+- CPU: 4 cores
+- Storage: 5GB free space
+- OS: Windows 10+, macOS 10.15+, Ubuntu 18.04+
 
-## 🔍 **Troubleshooting That Actually Helps**
+### Recommended
+- RAM: 16GB+
+- CPU: 8+ cores
+- Storage: 10GB+ free space
+- Storage Type: SSD preferred
 
-| Problem | Solution | Why It Happens |
-|---------|----------|----------------|
-| "llama-cpp-python not installed" | `pip install llama-cpp-python` | You skipped step 1 |
-| "Model not found" | `python lumina.py --setup` | You skipped step 2 |
-| Slow performance | Close other apps | Your PC is multitasking |
+## Troubleshooting
 
-## 📜 **Simple License**
+| Problem | Solution |
+|---------|----------|
+| "llama-cpp-python not installed" | `pip install llama-cpp-python` |
+| "Model not found" | `python lumina.py --setup` |
+| Slow performance | Close other applications |
 
-**MIT License - Simple and Clear:**
-- ✅ **Personal use** - Use for your own projects
-- ✅ **Educational use** - Use for learning and teaching
-- ✅ **Modify and share** - Open source freedom
-- ✅ **No attribution required** - Use it however you want
+## License
 
-## 💰 **Get the Full Experience**
+**MIT License** - Simple and clear:
+- Personal use
+- Educational use
+- Modify and share
+- No attribution required
 
-**This GitHub version is a demo with basic features. For the complete Lumina experience:**
+## Get the Full Experience
 
-- 🚀 **Full performance** - Maximum speed and context
-- 🧠 **Advanced models** - 13B, 30B, and specialized models
-- 🎨 **Professional tools** - GUI, batch processing, plugins
-- 📚 **Premium support** - Direct help and updates
+This GitHub version is a demo with basic features. For the complete Lumina experience:
 
-**Visit our website for the full version!**
+- Full performance with maximum context
+- Advanced models (13B, 30B, specialized)
+- Professional tools (GUI, batch processing, plugins)
+- Premium support and updates
+
+**Visit our website for the full version.**
 
 ---
 
-**✨ Made for students who refuse to compromise on privacy, performance, or principles.**
+**Made for students who value privacy, performance, and simplicity.**
 
 **Get Started • [Documentation](USAGE_GUIDE.md) • [Issues](https://github.com/kaankutluturk/lumina/issues)**
