@@ -163,6 +163,22 @@
       </div>
     </section>
 
+    <section id="waitlist" class="waitlist">
+      <div class="container">
+        <h2>Join the waitlist</h2>
+        <p class="subtitle">Get notified when Verdant Premium is available. No spam, unsubscribe anytime.</p>
+        <form id="waitlist-form" class="waitlist-form" autocomplete="on" novalidate>
+          <label class="visually-hidden" for="waitlist-email">Email address</label>
+          <input id="waitlist-email" name="email" type="email" inputmode="email" placeholder="you@example.com" required />
+          <button type="submit" class="btn primary">Notify me</button>
+          <input type="hidden" name="source" value="verdant-site" />
+          <input type="hidden" name="_subject" value="Verdant Premium waitlist" />
+        </form>
+        <p class="small muted">We only use your email to send product updates about Verdant Premium.</p>
+        <div id="waitlist-message" class="form-message" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+
     <section id="faq" class="faq">
       <div class="container">
         <h2>FAQ</h2>

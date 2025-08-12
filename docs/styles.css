@@ -97,4 +97,12 @@ body {
 .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .links { display: inline-flex; gap: 14px; }
 .links a { color: var(--text); text-decoration: none; opacity: 0.9; }
-.links a:hover { opacity: 1; } 
+.links a:hover { opacity: 1; }
+
+.waitlist { padding: 40px 0; }
+.waitlist .subtitle { color: var(--muted); margin: 0 0 16px; }
+.waitlist-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.waitlist-form input[type="email"] { flex: 1 1 260px; min-width: 220px; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.04); color: var(--text); }
+.form-message { margin-top: 10px; color: var(--muted); }
+.muted { color: var(--muted); }
+.visually-hidden { position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap; } 
