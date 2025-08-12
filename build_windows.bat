@@ -19,6 +19,7 @@ pyinstaller --noconfirm ^
   --name VerdantApp ^
   --add-data "presets.json;." ^
   --collect-all llama_cpp ^
+  --icon assets/icon/verdant.ico ^
   verdant_app.py || goto :error
 
 echo.

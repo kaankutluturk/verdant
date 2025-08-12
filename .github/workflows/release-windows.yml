@@ -35,6 +35,7 @@ jobs:
             --name VerdantApp \
             --add-data "presets.json;." \
             --collect-all llama_cpp \
+            --icon assets/icon/verdant.ico \
             verdant_app.py
 
       - name: Create Release
