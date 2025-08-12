@@ -39,6 +39,24 @@ def _resource_path(relative: str) -> Path:
         return Path(base) / relative
     return Path(__file__).parent / relative
 
+# Premium gating
+IS_PREMIUM = False  # Set True in premium builds
+
+def get_capabilities() -> Dict[str, Any]:
+    if IS_PREMIUM:
+        return {
+            "max_context": 4096,
+            "allow_gpu": True,
+            "allow_batch": True,
+            "allow_doc_tools": True,
+        }
+    return {
+        "max_context": 2048,
+        "allow_gpu": False,
+        "allow_batch": False,
+        "allow_doc_tools": False,
+    }
+
 # Core configuration
 @dataclass
 class ModelConfig:
@@ -234,13 +252,16 @@ class ModelDownloader:
         if not model_path.exists():
             return False
         
-        # Check file size
-        actual_size = model_path.stat().st_size / (1024 * 1024)  # MB
-        if abs(actual_size - model.size_mb) > 50:  # Allow 50MB variance
-            print(f"⚠️  File size mismatch: expected {model.size_mb}MB, got {actual_size:.1f}MB")
-            return False
-        
-        print(f"✅ Model validation passed: {model_path}")
+        # Check file size (warn-only, different quantizations have different sizes)
+        try:
+            actual_size = model_path.stat().st_size / (1024 * 1024)  # MB
+            expected = model.size_mb
+            if expected and abs(actual_size - expected) > 200:  # allow large variance
+                print(f"⚠️  File size mismatch: expected ~{expected}MB, got {actual_size:.1f}MB (continuing)")
+            else:
+                print(f"✅ Model validation passed: {model_path}")
+        except Exception as e:
+            print(f"⚠️  Skipping size check: {e}")
         return True
     
     def get_model_path(self, model_key: str) -> Optional[Path]:
@@ -272,6 +293,18 @@ class AIInference:
     def _load_model(self):
         """Load the model with hardware-optimized settings."""
         try:
+            # For frozen Windows builds, ensure packaged llama_cpp DLLs are on the path
+            if getattr(sys, "frozen", False) and platform.system() == "Windows":
+                try:
+                    meipass = Path(getattr(sys, "_MEIPASS", ""))
+                    dll_dir = meipass / "llama_cpp" / "lib"
+                    if dll_dir.exists():
+                        if hasattr(os, "add_dll_directory"):
+                            os.add_dll_directory(str(dll_dir))
+                        os.environ["PATH"] = f"{dll_dir};" + os.environ.get("PATH", "")
+                except Exception:
+                    pass
+            
             from llama_cpp import Llama
             
             # Get hardware info for optimization
@@ -528,6 +561,7 @@ def main():
     parser.add_argument("--context", type=int, help="Override context window size")
     parser.add_argument("--temperature", type=float, help="Sampling temperature (default from prefs)")
     parser.add_argument("--top_p", type=float, help="Top-p nucleus sampling (default from prefs)")
+    parser.add_argument("--gpu", action="store_true", help="Enable GPU acceleration (Premium)")
 
     # Presets
     parser.add_argument("--preset", type=str, help="Use a prompt preset by name (presets.json)")
@@ -548,6 +582,8 @@ def main():
 
     args = parser.parse_args()
 
+    caps = get_capabilities()
+
     # Load preferences
     prefs_path = Path(args.prefs_path) if args.prefs_path else None
     prefs = UserPreferences.load(prefs_path) if args.use_prefs else UserPreferences.DEFAULTS.copy()
@@ -558,6 +594,13 @@ def main():
     context = args.context if args.context is not None else prefs.get("context")
     temperature = args.temperature if args.temperature is not None else prefs.get("temperature", 0.7)
     top_p = args.top_p if args.top_p is not None else prefs.get("top_p", 0.9)
+
+    # Enforce demo constraints
+    if context and context > caps["max_context"]:
+        print(f"ℹ️  Context {context} exceeds limit; using {caps['max_context']} (upgrade to Premium for larger contexts)")
+        context = caps["max_context"]
+    if args.gpu and not caps["allow_gpu"]:
+        print("ℹ️  GPU acceleration is a Premium feature. Continuing with CPU.")
 
     if args.save_prefs:
         new_prefs = {
@@ -616,7 +659,7 @@ def main():
             return
 
         try:
-            # Load AI model
+            # Load AI model (GPU toggle gated; this build uses CPU-only llama.cpp)
             ai = AIInference(model_path, n_ctx=context, n_threads=threads, temperature=temperature, top_p=top_p)
         except Exception as e:
             print(f"❌ Failed to initialize model: {e}")
