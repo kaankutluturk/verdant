@@ -4,6 +4,7 @@
 #define MyAppPublisher "Verdant Leaf"
 #define MyAppURL "https://kaankutluturk.github.io/verdant/"
 #define MyAppExeName "VerdantApp.exe"
+#define UpdaterExeName "VerdantUpdater.exe"
 
 [Setup]
 AppId={{C8ED37B1-0F3D-4E0B-9B1E-2C7B0E0F47E1}
@@ -33,10 +34,47 @@ Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "A
 [Files]
 Source: "dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "presets.json"; DestDir: "{app}"; Flags: ignoreversion
+Source: "dist\{#UpdaterExeName}"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\Verdant"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\Verdant"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "Launch Verdant"; Flags: nowait postinstall skipifsilent 
+Filename: "{app}\{#MyAppExeName}"; Description: "Launch Verdant"; Flags: nowait postinstall skipifsilent
+
+[InstallDelete]
+Type: files; Name: "{app}\version.txt"
+
+[Code]
+var
+  VerFile: string;
+
+function GetVersionTag(): string;
+begin
+  if GetEnv('GITHUB_REF_NAME') <> '' then
+    Result := GetEnv('GITHUB_REF_NAME')
+  else
+    Result := '{#MyAppVersion}';
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssPostInstall then
+  begin
+    VerFile := ExpandConstant('{app}') + '\version.txt';
+    SaveStringToFile(VerFile, GetVersionTag(), False);
+    // Create/update scheduled task for auto-updates (daily at logon)
+    Exec('schtasks', '/Create /F /TN "Verdant Updater" /SC DAILY /RL HIGHEST /TR ' +
+      '"""' + ExpandConstant('{app}') + '\{#UpdaterExeName}"""', '', SW_HIDE, ewWaitUntilTerminated, nil);
+  end;
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usUninstall then
+  begin
+    // Remove scheduled task
+    Exec('schtasks', '/Delete /F /TN "Verdant Updater"', '', SW_HIDE, ewWaitUntilTerminated, nil);
+  end;
+end; 
