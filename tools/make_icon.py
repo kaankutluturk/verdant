@@ -31,4 +31,4 @@ for size in SIZES:
 # Save ICO with multiple sizes
 ico_path = out_dir / "verdant.ico"
 images[0].save(ico_path, format="ICO", sizes=[(s, s) for s in SIZES])
-print(f"✅ Generated {ico_path}") 
+print(f"Generated {ico_path}") 
