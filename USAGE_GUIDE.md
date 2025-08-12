@@ -1,4 +1,4 @@
-# 📖 Lumina Usage Guide
+# 📖 Verdant Usage Guide
 
 ## 🚀 Quick Start
 
@@ -9,259 +9,216 @@ pip install -r requirements.txt
 
 ### **Step 2: Test Installation**
 ```bash
-python test_lumina.py
+python test_verdant.py
 ```
 
-### **Step 3: Download Model**
+### **Step 3: Setup (Download Model)**
 ```bash
-python lumina.py --setup
+python verdant.py --setup
 ```
 
-### **Step 4: Start Using**
+### **Step 4: Start Chatting**
 ```bash
-python lumina.py --interactive
+python verdant.py --interactive
 ```
 
----
+## 📚 **Detailed Usage**
 
-## 💻 Command Line Options
+### **Setup Commands**
 
-### **Setup & Installation**
+#### **Basic Setup**
 ```bash
-# Download and setup the AI model
-python lumina.py --setup
+python verdant.py --setup
+```
 
-# Download specific model
-python lumina.py --setup --model mistral-7b-q4
+#### **Setup with Specific Model**
+```bash
+python verdant.py --setup --model mistral-7b-q4
 ```
 
 ### **Interactive Mode**
+
+#### **Start Interactive Chat**
 ```bash
-# Start interactive chat
-python lumina.py --interactive
-
-# Use specific model
-python lumina.py --interactive --model mistral-7b-q4
+python verdant.py --interactive
 ```
 
-### **Single Prompt**
+#### **Interactive with Specific Model**
 ```bash
-# Process a single prompt
-python lumina.py --prompt "Your question here"
-
-# Use specific model
-python lumina.py --prompt "Your question" --model mistral-7b-q4
+python verdant.py --interactive --model mistral-7b-q4
 ```
 
-### **Help & Information**
+### **Single Prompt Processing**
+
+#### **Process One Question**
 ```bash
-# Show help
-python lumina.py --help
-
-# Show version info
-python lumina.py --version
+python verdant.py --prompt "Your question here"
 ```
 
----
-
-## 🗣️ Interactive Chat Commands
-
-Once you're in interactive mode, you can use these commands:
-
-| Command | Description |
-|---------|-------------|
-| `help` | Show available commands |
-| `clear` | Clear conversation history |
-| `quit` | Exit the chat session |
-| `exit` | Exit the chat session |
-| `bye` | Exit the chat session |
-
----
-
-## 📝 Usage Examples
-
-### **Academic Writing Help**
-```
-👤 You: Help me paraphrase this text: "The study shows that social media affects students badly."
-
-🤖 Lumina: Here are some alternative phrasings:
-1. "Research indicates that social media negatively impacts student performance."
-2. "The research demonstrates adverse effects of social media on students."
-3. "Studies reveal that social media has detrimental consequences for students."
+#### **Single Prompt with Model**
+```bash
+python verdant.py --prompt "Your question" --model mistral-7b-q4
 ```
 
-### **Grammar and Style**
-```
-👤 You: Fix the grammar in this sentence: "Me and him went to the store."
+### **Help and Information**
 
-🤖 Lumina: The correct version is: "He and I went to the store."
-```
-
-### **Summarization**
-```
-👤 You: Summarize this paragraph in 2 sentences: [long paragraph text]
-
-🤖 Lumina: [concise summary in 2 sentences]
+#### **Show Help**
+```bash
+python verdant.py --help
 ```
 
----
+#### **Show Version**
+```bash
+python verdant.py --version
+```
 
-## ⚙️ Performance Optimization
+## 🎯 **Academic Use Cases**
 
-### **Hardware Detection**
-Lumina automatically detects your system capabilities:
+### **1. Paraphrasing Text**
+**Input:** "The study shows social media affects students badly"
+**Command:** `python verdant.py --prompt "Paraphrase this: The study shows social media affects students badly"`
+**Output:** 🤖 Verdant: Here are some alternative phrasings:
+- "Research indicates social media platforms have detrimental impacts on student well-being"
+- "The research demonstrates that social media negatively influences students"
+- "Studies reveal that social media usage adversely affects student outcomes"
 
-- **High Performance**: 16GB+ RAM, 8+ cores → 4096 context, max threads
-- **Medium Performance**: 8GB+ RAM, 4+ cores → 2048 context, optimized threads  
-- **Low Performance**: <8GB RAM → 1024 context, conservative threads
+### **2. Grammar Correction**
+**Input:** "There going to the libary tommorow"
+**Command:** `python verdant.py --prompt "Fix the grammar: There going to the libary tommorow"`
+**Output:** 🤖 Verdant: The correct version is: "They're going to the library tomorrow."
 
-### **Performance Tips**
-1. **Close other applications** to free up RAM
-2. **Use SSD storage** for faster model loading
-3. **Ensure good ventilation** for sustained performance
-4. **Monitor system resources** during use
+### **3. Text Summarization**
+**Input:** [Long academic text]
+**Command:** `python verdant.py --prompt "Summarize this text in 2 sentences: [your text]"`
+**Output:** 🤖 Verdant: [concise summary in 2 sentences]
 
----
+## ⚙️ **Performance Optimization**
 
-## 🔧 Troubleshooting
+### **Automatic Hardware Detection**
+Verdant automatically detects your system capabilities:
+
+- **High Performance** (16GB+ RAM, 8+ cores): 4096 context, max threads
+- **Medium Performance** (8GB+ RAM, 4+ cores): 2048 context, optimized threads  
+- **Low Performance** (<8GB RAM): 1024 context, conservative threads
+
+### **Manual Performance Tuning**
+```bash
+# High performance mode
+python verdant.py --interactive --threads 8 --context 4096
+
+# Conservative mode
+python verdant.py --interactive --threads 4 --context 1024
+```
+
+## 🔧 **Troubleshooting**
 
 ### **Common Issues**
 
-#### **"llama-cpp-python not installed"**
+#### **Model Not Found**
 ```bash
-pip install llama-cpp-python
+# Download the model first
+python verdant.py --setup
 ```
-
-#### **"Model not found"**
-```bash
-python lumina.py --setup
-```
-
-#### **"Insufficient RAM"**
-- Close other applications
-- Check if you meet minimum 6GB requirement
-- Consider upgrading RAM if possible
 
 #### **Slow Performance**
-- Check your performance tier
-- Ensure good ventilation
+- Close other applications
+- Use lower context size: `--context 1024`
+- Reduce thread count: `--threads 4`
+
+#### **Memory Issues**
+- Ensure you have at least 8GB RAM
 - Close unnecessary applications
-- Use SSD storage if available
+- Use lower context size
 
-### **Windows-Specific**
-- Run `install_and_test.bat` for easy setup
-- Ensure Python is added to PATH during installation
-- Run PowerShell as Administrator if needed
+### **Performance Tips**
+1. **SSD Storage**: Faster model loading
+2. **Dedicated GPU**: Enable GPU acceleration if available
+3. **Background Apps**: Close other applications
+4. **Model Size**: Start with smaller models if RAM is limited
 
----
-
-## 📊 System Requirements
-
-### **Minimum Requirements**
-- **RAM**: 8GB (6GB for model + 2GB for system)
-- **CPU**: 4 cores
-- **Storage**: 5GB free space
-- **OS**: Windows 10+, macOS 10.15+, Ubuntu 18.04+
-
-### **Recommended Requirements**
-- **RAM**: 16GB+
-- **CPU**: 8+ cores
-- **Storage**: 10GB+ free space
-- **Storage Type**: SSD preferred
-
----
-
-## 🎯 Best Practices
-
-### **For Students**
-1. **Use for brainstorming** - Get ideas for essays and projects
-2. **Grammar checking** - Improve writing quality
-3. **Style adjustment** - Adapt tone for different audiences
-4. **Summarization** - Condense long readings
-
-### **For Academic Writing**
-1. **Start with clear prompts** - Be specific about what you need
-2. **Use iterative refinement** - Ask follow-up questions
-3. **Verify outputs** - Always review AI-generated content
-4. **Combine with human creativity** - Use AI as a tool, not replacement
-
----
-
-## 🔒 Privacy & Security
-
-### **Local Processing**
-- ✅ **All data stays on your device**
-- ✅ **No internet required after setup**
-- ✅ **No data sent to external servers**
-- ✅ **Complete privacy control**
-
-### **Model Safety**
-- The Mistral 7B model is trained on diverse data
-- Use responsibly and ethically
-- Verify outputs for academic work
-- Follow your institution's AI usage policies
-
----
-
-## 📚 Advanced Usage
-
-### **Custom Prompts**
-Create your own prompt templates:
-
-```bash
-python lumina.py --prompt "You are an expert academic writer. Help me improve this paragraph: [your text]"
-```
+## 📝 **Advanced Usage**
 
 ### **Batch Processing**
-Process multiple prompts:
-
 ```bash
-python lumina.py --prompt "First question"
-python lumina.py --prompt "Second question"
-python lumina.py --prompt "Third question"
+# Process multiple questions
+python verdant.py --prompt "First question"
+python verdant.py --prompt "Second question"
+python verdant.py --prompt "Third question"
 ```
 
-### **Model Switching**
-In the future, you'll be able to switch between different models for different tasks.
+### **Academic Writing Assistant**
+```bash
+python verdant.py --prompt "You are an expert academic writer. Help me improve this paragraph: [your text]"
+```
 
----
+### **Custom Prompts**
+```bash
+python verdant.py --prompt "Act as a math tutor and explain calculus concepts simply"
+```
+
+## 🏗️ **Project Structure**
+
+```
+verdant/
+├── verdant.py              # Main application
+├── test_verdant.py         # Test suite
+├── demo.py                 # Feature demonstration
+├── requirements.txt        # Python dependencies
+├── README.md              # Project documentation
+├── USAGE_GUIDE.md         # This guide
+├── PROJECT_STATUS.md      # Development status
+├── LICENSE                # MIT License
+├── .gitignore            # Git ignore rules
+├── install_and_test.ps1  # Windows installation
+├── install_and_test.bat  # Windows batch file
+├── setup_github.ps1      # GitHub setup script
+└── setup_github.bat      # GitHub setup batch
+```
+
+## 🚀 **Next Steps**
+
+### **After Setup**
+1. **Test Installation**: `python test_verdant.py`
+2. **Download Model**: `python verdant.py --setup`
+3. **Start Chatting**: `python verdant.py --interactive`
+
+### **Explore Features**
+- Try different prompt styles
+- Test performance with various settings
+- Experiment with academic writing tasks
 
 ## 💰 **Get the Full Experience**
 
-**This GitHub version is a demo with basic features. For the complete Lumina experience:**
+**This GitHub version is a demo with basic features. For the complete Verdant experience:**
 
-- 🚀 **Full performance** - Maximum speed and context
-- 🧠 **Advanced models** - 13B, 30B, and specialized models
-- 🎨 **Professional tools** - GUI, batch processing, plugins
-- 📚 **Premium support** - Direct help and updates
+- Full performance with maximum context
+- Advanced models (13B, 30B, specialized)
+- Professional tools (GUI, batch processing, plugins)
+- Premium support and updates
 
-**Visit our website for the full version!**
-
----
-
-## 🆘 Getting Help
-
-### **Documentation**
-- `README.md` - Project overview and installation
-- `PROJECT_STATUS.md` - Technical implementation details
-- `docs/` - Additional documentation
-
-### **Testing**
-- `test_lumina.py` - Run tests to verify functionality
-- `demo.py` - See features in action
-
-### **Examples**
-- `examples/` - Sample usage scenarios
+**Visit our website for the full version.**
 
 ---
 
-## 🎉 You're Ready!
+## 📚 **File Descriptions**
 
-You now have a fully functional local AI assistant that:
-- ✅ Runs entirely on your device
-- ✅ Respects your privacy
-- ✅ Optimizes for your hardware
-- ✅ Works offline
-- ✅ Provides academic writing help
+- `verdant.py` - Main AI application with CLI interface
+- `test_verdant.py` - Run tests to verify functionality
+- `demo.py` - Feature demonstration without full model
+- `requirements.txt` - Python package dependencies
+- `README.md` - Project overview and quick start
+- `USAGE_GUIDE.md` - This detailed usage guide
+- `PROJECT_STATUS.md` - Development progress and roadmap
+- `LICENSE` - MIT License terms
+- `install_and_test.ps1` - Windows PowerShell installation
+- `install_and_test.bat` - Windows batch installation
+- `setup_github.ps1` - GitHub repository setup
+- `setup_github.bat` - GitHub setup batch file
 
-**Happy learning with Lumina! ✨** 
+## 🎯 **Support**
+
+- **Issues**: Report bugs on GitHub
+- **Documentation**: Check this guide and README
+- **Community**: Join discussions on GitHub
+
+**Happy learning with Verdant! ✨** 

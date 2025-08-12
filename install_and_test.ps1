@@ -1,7 +1,7 @@
-# Lumina Installation and Test Script for Windows
+# Verdant Installation and Test Script for Windows
 # Run this in PowerShell as Administrator if needed
 
-Write-Host "✨ Lumina Installation and Test Script" -ForegroundColor Green
+Write-Host "✨ Verdant Installation and Test Script" -ForegroundColor Green
 Write-Host "=====================================" -ForegroundColor Green
 
 # Check if Python is installed
@@ -54,14 +54,14 @@ try {
 }
 
 # Test the installation
-Write-Host "`n🧪 Testing Lumina installation..." -ForegroundColor Yellow
+Write-Host "`n🧪 Testing Verdant installation..." -ForegroundColor Yellow
 try {
-    python test_lumina.py
+    python test_verdant.py
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "`n🎉 All tests passed! Lumina is ready to use." -ForegroundColor Green
+        Write-Host "`n🎉 All tests passed! Verdant is ready to use." -ForegroundColor Green
         Write-Host "`n📖 Next steps:" -ForegroundColor Cyan
-        Write-Host "   1. Run: python lumina.py --setup" -ForegroundColor White
-        Write-Host "   2. Run: python lumina.py --interactive" -ForegroundColor White
+        Write-Host "   1. Run: python verdant.py --setup" -ForegroundColor White
+        Write-Host "   2. Run: python verdant.py --interactive" -ForegroundColor White
     } else {
         Write-Host "`n❌ Some tests failed. Please check the errors above." -ForegroundColor Red
     }

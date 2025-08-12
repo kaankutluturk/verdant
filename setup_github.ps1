@@ -1,7 +1,7 @@
-# Lumina GitHub Setup Script
-# This script helps you push your Lumina MVP to GitHub
+# Verdant GitHub Setup Script
+# This script helps you push your Verdant MVP to GitHub
 
-Write-Host "🚀 Lumina GitHub Setup" -ForegroundColor Green
+Write-Host "🚀 Verdant GitHub Setup" -ForegroundColor Green
 Write-Host "=====================" -ForegroundColor Green
 
 Write-Host "`n📋 Before running this script:" -ForegroundColor Yellow

@@ -1,4 +1,4 @@
-# Lumina - Local AI Assistant
+# Verdant - Local AI Assistant
 
 > **Privacy-first AI that runs entirely on your laptop. No cloud, no subscriptions, no data mining. 100% offline after setup.**
 
@@ -6,9 +6,9 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Status: MVP](https://img.shields.io/badge/status-MVP-orange.svg)]()
 
-## What is Lumina?
+## What is Verdant?
 
-Lumina is a local AI assistant that runs entirely on your device. It's designed for students and developers who need AI assistance without compromising privacy or relying on cloud services.
+Verdant is a local AI assistant that runs entirely on your device. It's designed for students and developers who need AI assistance without compromising privacy or relying on cloud services.
 
 **Key Features:**
 - **Privacy**: Your data never leaves your device
@@ -41,13 +41,13 @@ Lumina is a local AI assistant that runs entirely on your device. It's designed 
 pip install -r requirements.txt
 
 # 2. Test installation
-python test_lumina.py
+python test_verdant.py
 
 # 3. Download model (one-time, ~4GB)
-python lumina.py --setup
+python verdant.py --setup
 
 # 4. Start using
-python lumina.py --interactive
+python verdant.py --interactive
 ```
 
 ## Performance
@@ -65,7 +65,7 @@ python lumina.py --interactive
 
 ## Academic Tasks
 
-Lumina excels at common academic writing tasks:
+Verdant excels at common academic writing tasks:
 
 - **Paraphrasing**: Rewrite text in different styles
 - **Grammar Fixing**: Correct spelling and punctuation
@@ -77,8 +77,8 @@ Lumina excels at common academic writing tasks:
 
 ### Option 1: Quick Install
 ```bash
-git clone https://github.com/kaankutluturk/lumina.git
-cd lumina && pip install -r requirements.txt && python lumina.py --setup
+git clone https://github.com/kaankutluturk/verdant.git
+cd verdant && pip install -r requirements.txt && python verdant.py --setup
 ```
 
 ### Option 2: Manual Install
@@ -91,24 +91,24 @@ python lumina.py --setup
 
 ### Interactive Mode
 ```bash
-python lumina.py --interactive
+python verdant.py --interactive
 ```
 
 ### Single Prompt
 ```bash
-python lumina.py --prompt "Your question here"
+python verdant.py --prompt "Your question here"
 ```
 
 ### Performance Tuning
 ```bash
-python lumina.py --threads 8 --context 4096
+python verdant.py --threads 8 --context 4096
 ```
 
 ## Architecture
 
 ```
 ┌─────────────┐    ┌──────────────┐    ┌─────────────┐
-│   User      │───▶│  Lumina Core │───▶│  Mistral    │
+│   User      │───▶│  Verdant Core │───▶│  Mistral    │
 │  (CLI)      │    │  (Hardware   │    │  7B-Q4     │
 │             │    │   Detection) │    │  (llama.cpp)│
 └─────────────┘    └──────────────┘    └─────────────┘
@@ -122,7 +122,7 @@ python lumina.py --threads 8 --context 4096
 
 ## Environmental Impact
 
-**Lumina vs Cloud AI:**
+**Verdant vs Cloud AI:**
 - Energy: 95% less than cloud inference
 - Carbon: Minimal footprint after download
 - Network: Zero traffic after setup
@@ -180,7 +180,7 @@ We welcome contributions:
 | Problem | Solution |
 |---------|----------|
 | "llama-cpp-python not installed" | `pip install llama-cpp-python` |
-| "Model not found" | `python lumina.py --setup` |
+| "Model not found" | `python verdant.py --setup` |
 | Slow performance | Close other applications |
 
 ## License
@@ -193,7 +193,7 @@ We welcome contributions:
 
 ## Get the Full Experience
 
-This GitHub version is a demo with basic features. For the complete Lumina experience:
+This GitHub version is a demo with basic features. For the complete Verdant experience:
 
 - Full performance with maximum context
 - Advanced models (13B, 30B, specialized)
@@ -206,4 +206,4 @@ This GitHub version is a demo with basic features. For the complete Lumina exper
 
 **Made for students who value privacy, performance, and simplicity.**
 
-**Get Started • [Documentation](USAGE_GUIDE.md) • [Issues](https://github.com/kaankutluturk/lumina/issues)**
+**Get Started • [Documentation](USAGE_GUIDE.md) • [Issues](https://github.com/kaankutluturk/verdant/issues)**

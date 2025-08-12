@@ -1,8 +1,8 @@
 @echo off
-echo 🚀 Lumina GitHub Setup
+echo 🚀 Verdant GitHub Setup
 echo =====================
 echo.
-echo This script will help you push Lumina to GitHub.
+echo This script will help you push Verdant to GitHub.
 echo.
 echo Press any key to continue...
 pause >nul

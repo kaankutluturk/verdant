@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-EcoAI MVP - Local AI Assistant for Students 
+Verdant - Local AI Assistant for Students 
 A lightweight, eco-friendly AI assistant running locally on student laptops. 
  
-Copyright 2025 EcoAI Project 
+Copyright 2025 Verdant Project 
  
-Licensed under the Apache License, Version 2.0 (the "License"); 
+Licensed under the MIT License (the "License"); 
 you may not use this file except in compliance with the License. 
 You may obtain a copy of the License at 
  
-    http://www.apache.org/licenses/LICENSE-2.0 
+    https://opensource.org/licenses/MIT
  
 Unless required by applicable law or agreed to in writing, software 
 distributed under the License is distributed on an "AS IS" BASIS, 
@@ -304,7 +304,7 @@ class InteractiveChat:
     
     def start_chat(self):
         """Start interactive chat session."""
-        print("\n💬 EcoAI Interactive Chat")
+        print("\n💬 Verdant Interactive Chat")
         print("=" * 50)
         print("Type 'quit', 'exit', or 'bye' to end the session")
         print("Type 'clear' to clear conversation history")
@@ -319,7 +319,7 @@ class InteractiveChat:
                     continue
                 
                 if user_input.lower() in ['quit', 'exit', 'bye']:
-                    print("👋 Goodbye! Thanks for using EcoAI.")
+                    print("👋 Goodbye! Thanks for using Verdant.")
                     break
                 
                 if user_input.lower() == 'clear':
@@ -332,7 +332,7 @@ class InteractiveChat:
                     continue
                 
                 # Generate response
-                print("\n🤖 EcoAI: ", end='', flush=True)
+                print("\n🤖 Verdant: ", end='', flush=True)
                 response = self.ai.generate_response(user_input)
                 print(response)
                 
@@ -344,7 +344,7 @@ class InteractiveChat:
                 })
                 
             except KeyboardInterrupt:
-                print("\n\n👋 Goodbye! Thanks for using EcoAI.")
+                print("\n\n👋 Goodbye! Thanks for using Verdant.")
                 break
             except Exception as e:
                 print(f"\n❌ Error: {e}")
@@ -360,7 +360,7 @@ class InteractiveChat:
 
 def main():
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="EcoAI - Local AI Assistant")
+    parser = argparse.ArgumentParser(description="Verdant - Local AI Assistant")
     parser.add_argument("--setup", action="store_true", help="Run initial setup")
     parser.add_argument("--prompt", type=str, help="Single prompt to process")
     parser.add_argument("--interactive", action="store_true", help="Interactive mode")
@@ -369,7 +369,7 @@ def main():
     args = parser.parse_args()
     
     if args.setup:
-        print("🌱 EcoAI Setup")
+        print("🌱 Verdant Setup")
         print("=" * 50)
         
         # Check system requirements
@@ -389,11 +389,11 @@ def main():
             return
         
         print("\n🎉 Setup complete! You can now run:")
-        print("   python ecoai.py --interactive")
+        print("   python verdant.py --interactive")
         return
     
     if args.interactive:
-        print("🚀 Starting EcoAI Interactive Mode...")
+        print("🚀 Starting Verdant Interactive Mode...")
         
         # Check if model exists
         downloader = ModelDownloader()
@@ -401,7 +401,7 @@ def main():
         
         if not model_path:
             print(f"❌ Model not found. Please run setup first:")
-            print(f"   python ecoai.py --setup")
+            print(f"   python verdant.py --setup")
             return
         
         try:
@@ -427,7 +427,7 @@ def main():
         
         if not model_path:
             print(f"❌ Model not found. Please run setup first:")
-            print(f"   python ecoai.py --setup")
+            print(f"   python verdant.py --setup")
             return
         
         try:
@@ -436,7 +436,7 @@ def main():
             
             # Generate response
             response = ai.generate_response(args.prompt)
-            print(f"\n🤖 EcoAI: {response}")
+            print(f"\n🤖 Verdant: {response}")
             
         except Exception as e:
             print(f"❌ Failed to process prompt: {e}")
@@ -444,7 +444,7 @@ def main():
             print("   pip install llama-cpp-python")
         return
     
-    print("EcoAI MVP - Run with --setup first, then --interactive")
+    print("Verdant MVP - Run with --setup first, then --interactive")
 
 if __name__ == "__main__":
     main()

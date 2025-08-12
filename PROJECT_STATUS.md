@@ -1,4 +1,4 @@
-# 🚀 Lumina MVP Project Status
+# 🚀 Verdant MVP Project Status
 
 ## 📊 **Current Status: WORKING MVP** ✅
 
@@ -64,9 +64,9 @@
 
 ### **File Structure**
 ```
-lumina/
-├── lumina.py              # Main application (MVP)
-├── test_lumina.py         # Test suite
+verdant/
+├── verdant.py              # Main application (MVP)
+├── test_verdant.py         # Test suite
 ├── demo.py                # Feature demonstration
 ├── requirements.txt       # Python dependencies
 ├── install_and_test.ps1   # Windows installation script
@@ -122,13 +122,13 @@ lumina/
 pip install -r requirements.txt
 
 # 2. Test the installation
-python test_lumina.py
+python test_verdant.py
 
 # 3. Setup (downloads model)
-python lumina.py --setup
+python verdant.py --setup
 
 # 4. Start chatting
-python lumina.py --interactive
+python verdant.py --interactive
 ```
 
 ### **Windows Users**
@@ -204,7 +204,7 @@ install_and_test.bat
 
 ## 🏆 **Conclusion**
 
-**Lumina has successfully evolved from a skeleton project to a fully functional MVP that delivers on all its core promises:**
+**Verdant has successfully evolved from a skeleton project to a fully functional MVP that delivers on all its core promises:**
 
 1. ✅ **Local inference with Mistral 7B (quantized)** - IMPLEMENTED
 2. ✅ **Auto hardware detection and optimization** - IMPLEMENTED  

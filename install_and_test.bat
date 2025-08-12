@@ -1,8 +1,8 @@
 @echo off
-echo ✨ Lumina Installation Script
+echo ✨ Verdant Installation Script
 echo ===========================
 echo.
-echo This script will install Lumina and its dependencies.
+echo This script will install Verdant and its dependencies.
 echo.
 echo Press any key to continue...
 pause >nul
