@@ -8,6 +8,14 @@
 
 **Website**: [https://kaankutluturk.github.io/verdant/](https://kaankutluturk.github.io/verdant/)
 
+## Download (Windows)
+
+- [Download VerdantApp.exe](https://github.com/kaankutluturk/verdant/releases/latest/download/VerdantApp.exe)
+- Run VerdantApp.exe (GUI by default). For CLI, run: `VerdantApp.exe --cli`
+- First-time setup downloads the model (one-time)
+
+> Prefer manual install or macOS/Linux? See below.
+
 ## What is Verdant?
 
 Verdant is the world's first eco-conscious AI assistant that runs entirely on your device. Built for environmentally conscious students and developers who want powerful AI without the massive carbon footprint of cloud computing.
@@ -50,7 +58,7 @@ Verdant is the world's first eco-conscious AI assistant that runs entirely on yo
 - Single prompt processing for scripts
 - Cross-platform support (Windows, macOS, Linux)
 
-## Quick Start
+## Quick Start (manual install)
 
 ```bash
 # 1. Install dependencies
@@ -224,7 +232,7 @@ This GitHub version is a demo with basic features. For the complete Verdant expe
 - Professional tools (GUI, batch processing, plugins)
 - Premium support and updates
 
-**Visit the website for the full version: https://kaankutluturk.github.io/verdant/**
+**Download for Windows**: https://github.com/kaankutluturk/verdant/releases/latest/download/VerdantApp.exe
 
 ---
 
