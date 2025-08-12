@@ -1,6 +1,6 @@
-# 📖 Verdant Usage Guide - Eco-Conscious AI
+# 📖 Verdant Usage Guide
 
-> **The world's first truly green AI assistant. Every interaction helps protect our planet.**
+> **Complete guide to using Verdant - the eco-conscious local AI assistant.**
 
 ## 🚀 Quick Start
 
@@ -24,25 +24,7 @@ python verdant.py --setup
 python verdant.py --interactive
 ```
 
-## 🌱 **Why Verdant is Eco-Conscious**
-
-**Every AI interaction has an environmental cost. Verdant eliminates it:**
-
-### **Traditional Cloud AI:**
-- **🌍 Carbon Footprint**: Massive data centers running 24/7
-- **⚡ Energy Waste**: Servers consuming power even when idle
-- **🌐 Network Pollution**: Global data transmission emissions
-- **💧 Water Waste**: Data center cooling systems
-- **♻️ Hardware Waste**: Server lifecycle environmental impact
-
-### **Verdant Green AI:**
-- **🌱 Zero Carbon**: Runs entirely on your existing device
-- **💚 Energy Efficient**: 95% less energy than cloud AI
-- **🏠 Local Processing**: No network transmission needed
-- **♻️ Sustainable**: Uses only your device's resources
-- **🌿 Eco-Friendly**: Every use helps protect the planet
-
-**By choosing Verdant, you're making an eco-conscious choice that reduces your digital carbon footprint.**
+> **💡 Environmental Note**: See [README.md](README.md) for details on Verdant's eco-conscious benefits.
 
 ## 📚 **Detailed Usage**
 
@@ -186,9 +168,9 @@ verdant/
 ├── test_verdant.py         # Test suite
 ├── demo.py                 # Feature demonstration
 ├── requirements.txt        # Python dependencies
-├── README.md              # Project documentation
-├── USAGE_GUIDE.md         # This guide
-├── PROJECT_STATUS.md      # Development status
+├── README.md              # Project overview and environmental benefits
+├── USAGE_GUIDE.md         # This detailed usage guide
+├── PROJECT_STATUS.md      # Development status and roadmap
 ├── LICENSE                # MIT License
 ├── .gitignore            # Git ignore rules
 ├── install_and_test.ps1  # Windows installation
@@ -228,7 +210,7 @@ verdant/
 - `test_verdant.py` - Run tests to verify functionality
 - `demo.py` - Feature demonstration without full model
 - `requirements.txt` - Python package dependencies
-- `README.md` - Project overview and quick start
+- `README.md` - Project overview and environmental benefits
 - `USAGE_GUIDE.md` - This detailed usage guide
 - `PROJECT_STATUS.md` - Development progress and roadmap
 - `LICENSE` - MIT License terms

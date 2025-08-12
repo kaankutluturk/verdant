@@ -72,11 +72,6 @@ python verdant.py --interactive
 | **Medium** | 8GB+ | 4+ cores | 2048 | ~8 tok/sec |
 | **Low** | <8GB | Any | 1024 | ~4 tok/sec |
 
-**Benchmarks:**
-- MacBook Air M1: ~8 tok/sec, 4GB RAM usage
-- ThinkPad X1: ~6 tok/sec, 5GB RAM usage  
-- Gaming PC: ~15 tok/sec, 6GB RAM usage
-
 ## Academic Tasks
 
 Verdant excels at common academic writing tasks:
@@ -98,7 +93,7 @@ cd verdant && pip install -r requirements.txt && python verdant.py --setup
 ### Option 2: Manual Install
 ```bash
 pip install llama-cpp-python psutil requests
-python lumina.py --setup
+python verdant.py --setup
 ```
 
 ## Usage
