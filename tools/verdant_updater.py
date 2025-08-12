@@ -12,7 +12,6 @@ import requests
 OWNER = "kaankutluturk"
 REPO = "verdant"
 LATEST_API = f"https://api.github.com/repos/{OWNER}/{REPO}/releases/latest"
-LATEST_INSTALLER_URL = f"https://github.com/{OWNER}/{REPO}/releases/latest/download/verdant-setup.exe"
 USER_AGENT = "VerdantUpdater/1.0 (+https://github.com/kaankutluturk/verdant)"
 
 
@@ -28,10 +27,17 @@ def log(message: str) -> None:
 
 def get_app_dir() -> Path:
     exe = Path(sys.executable)
-    # Running as onefile EXE or via python
     if exe.suffix.lower() == ".exe":
         return exe.parent
     return Path.cwd()
+
+
+def read_channel(app_dir: Path) -> str:
+    try:
+        c = (app_dir / "channel.txt").read_text(encoding="utf-8").strip().lower()
+        return c if c else "stable"
+    except Exception:
+        return "stable"
 
 
 def read_installed_version(app_dir: Path) -> str:
@@ -57,10 +63,16 @@ def get_latest_tag() -> str | None:
     return None
 
 
-def download_installer() -> Path | None:
+def download_installer(channel: str) -> Path | None:
     try:
-        tmp = Path(tempfile.gettempdir()) / "verdant-setup-latest.exe"
-        with requests.get(LATEST_INSTALLER_URL, headers={"User-Agent": USER_AGENT}, timeout=60, stream=True) as r:
+        # choose asset name by channel
+        if channel == "demo":
+            asset = "verdant-demo-setup.exe"
+        else:
+            asset = "verdant-setup.exe"
+        url = f"https://github.com/{OWNER}/{REPO}/releases/latest/download/{asset}"
+        tmp = Path(tempfile.gettempdir()) / asset
+        with requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=60, stream=True) as r:
             r.raise_for_status()
             with open(tmp, "wb") as f:
                 for chunk in r.iter_content(chunk_size=1024 * 256):
@@ -84,12 +96,13 @@ def run_installer_silent(installer_path: Path) -> None:
 def main() -> int:
     try:
         app_dir = get_app_dir()
+        channel = read_channel(app_dir)
         installed = read_installed_version(app_dir)
         latest = get_latest_tag()
-        log(f"Installed={installed} Latest={latest}")
+        log(f"Channel={channel} Installed={installed} Latest={latest}")
         if not latest or latest == installed:
             return 0
-        inst = download_installer()
+        inst = download_installer(channel)
         if not inst:
             return 1
         run_installer_silent(inst)

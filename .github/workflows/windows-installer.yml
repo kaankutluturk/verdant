@@ -29,23 +29,34 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: build_windows.bat
 
-      - name: Compile installer
+      - name: Install Inno Setup
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.4
-        with:
-          path: installer/verdant.iss
 
-      - name: Upload installer artifact
+      - name: Compile stable installer with ISCC
+        shell: cmd
+        working-directory: installer
+        run: iscc verdant.iss
+
+      - name: Compile demo installer with ISCC
+        shell: cmd
+        working-directory: installer
+        run: iscc verdant_demo.iss
+
+      - name: Upload installer artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: verdant-setup
-          path: installer/Output/verdant-setup.exe
+          name: verdant-installers
+          path: |
+            installer/Output/verdant-setup.exe
+            installer/Output/verdant-demo-setup.exe
 
-      - name: Create GitHub Release and upload installer
+      - name: Create GitHub Release and upload installers
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
             installer/Output/verdant-setup.exe
+            installer/Output/verdant-demo-setup.exe
           generate_release_notes: true
           name: ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }} 

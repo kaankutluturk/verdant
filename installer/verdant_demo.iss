@@ -1,5 +1,5 @@
-; Verdant Installer Script
-#define MyAppName "Verdant"
+; Verdant Demo Installer Script
+#define MyAppName "Verdant Demo"
 #if GetEnv('GITHUB_REF_NAME') != ""
   #define MyAppVersion GetEnv('GITHUB_REF_NAME')
 #else
@@ -11,19 +11,19 @@
 #define UpdaterExeName "VerdantUpdater.exe"
 
 [Setup]
-AppId={{C8ED37B1-0F3D-4E0B-9B1E-2C7B0E0F47E1}}
+AppId={{9A7B4F0E-19F5-49E1-9B9D-8E8B0D9F1D10}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={autopf}\Verdant
-DefaultGroupName=Verdant
+DefaultDirName={autopf}\Verdant Demo
+DefaultGroupName=Verdant Demo
 DisableDirPage=yes
 DisableProgramGroupPage=yes
 OutputDir=Output
-OutputBaseFilename=verdant-setup
+OutputBaseFilename=verdant-demo-setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -45,11 +45,11 @@ Source: "{#SourcePath}\..\dist\{#UpdaterExeName}"; DestDir: "{app}"; Flags: igno
 #endif
 
 [Icons]
-Name: "{autoprograms}\Verdant"; Filename: "{app}\{#MyAppExeName}"
-Name: "{autodesktop}\Verdant"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{autoprograms}\Verdant Demo"; Filename: "{app}\{#MyAppExeName}"
+Name: "{autodesktop}\Verdant Demo"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "Launch Verdant"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "Launch Verdant Demo"; Flags: nowait postinstall skipifsilent
 
 [InstallDelete]
 Type: files; Name: "{app}\version.txt"
@@ -74,6 +74,6 @@ begin
     VerFile := ExpandConstant('{app}') + '\version.txt';
     SaveStringToFile(VerFile, GetVersionTag(), False);
     ChanFile := ExpandConstant('{app}') + '\channel.txt';
-    SaveStringToFile(ChanFile, 'stable', False);
+    SaveStringToFile(ChanFile, 'demo', False);
   end;
 end; 
