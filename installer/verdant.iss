@@ -23,7 +23,9 @@ OutputBaseFilename=verdant-setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
+#ifexist "{#SourcePath}\..\assets\icon\verdant.ico"
 SetupIconFile={#SourcePath}\..\assets\icon\verdant.ico
+#endif
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -34,7 +36,9 @@ Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "A
 [Files]
 Source: "{#SourcePath}\..\dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourcePath}\..\presets.json"; DestDir: "{app}"; Flags: ignoreversion
+#ifexist "{#SourcePath}\..\dist\{#UpdaterExeName}"
 Source: "{#SourcePath}\..\dist\{#UpdaterExeName}"; DestDir: "{app}"; Flags: ignoreversion
+#endif
 
 [Icons]
 Name: "{autoprograms}\Verdant"; Filename: "{app}\{#MyAppExeName}"

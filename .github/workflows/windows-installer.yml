@@ -1,0 +1,38 @@
+name: Build Windows installer
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    env:
+      GITHUB_REF_NAME: ${{ github.ref_name }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          architecture: 'x64'
+
+      - name: Build app and updater
+        shell: pwsh
+        working-directory: ecoai-main
+        run: .\build_windows.bat
+
+      - name: Compile installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.4
+        with:
+          path: ecoai-main/installer/verdant.iss
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: verdant-setup
+          path: ecoai-main/installer/Output/verdant-setup.exe 
