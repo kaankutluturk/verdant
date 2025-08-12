@@ -1,5 +1,5 @@
 <p align="left">
-  <img src="assets/logo/verdant-wordmark.svg" alt="Verdant" height="64"/>
+  <img src="https://raw.githubusercontent.com/kaankutluturk/verdant/main/assets/logo/verdant-wordmark.svg" alt="Verdant" height="64"/>
 </p>
 
 # Verdant - Eco-Conscious Local AI
