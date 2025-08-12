@@ -18,6 +18,7 @@ pyinstaller --noconfirm ^
   --onefile ^
   --name VerdantApp ^
   --add-data "presets.json;." ^
+  --collect-all llama_cpp ^
   verdant_app.py || goto :error
 
 echo.

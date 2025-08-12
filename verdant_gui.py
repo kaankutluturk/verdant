@@ -60,12 +60,30 @@ class VerdantGUI:
         self._build_ui()
 
     def _apply_theme(self):
-        bg = self.theme["bg"]
-        self.root.configure(bg=bg)
-        # ttk theme minimal adjustments
+        colors = self.theme
+        self.root.configure(bg=colors["bg"])
         style = ttk.Style(self.root)
-        # Use default theme and rely on widget backgrounds
-        # Panels get explicit backgrounds via frames
+        # Use clam theme for better ttk styling consistency
+        try:
+            style.theme_use("clam")
+        except Exception:
+            pass
+        style.configure("TFrame", background=colors["bg"])
+        style.configure("TLabelframe", background=colors["bg"], foreground=colors["text"])
+        style.configure("TLabel", background=colors["bg"], foreground=colors["text"])
+        style.configure("TButton", padding=6)
+        style.map("TButton", foreground=[("disabled", colors["muted"])])
+        style.configure("TProgressbar", troughcolor=colors["panel"], background=colors["brand"], darkcolor=colors["brand"], lightcolor=colors["brand"])
+        # Text widgets
+        def style_text_widget(w: tk.Text):
+            w.configure(bg=colors["panel"], fg=colors["text"], insertbackground=colors["text"], highlightthickness=0, bd=0)
+        # Apply to existing text areas if created
+        try:
+            style_text_widget(self.prompt_text)
+            style_text_widget(self.response_text)
+            style_text_widget(self.log_text)
+        except Exception:
+            pass
 
     def _build_ui(self):
         self._apply_theme()
