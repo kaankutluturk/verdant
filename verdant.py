@@ -25,7 +25,7 @@ import subprocess
 import hashlib
 import requests
 from pathlib import Path
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Callable
 from dataclasses import dataclass
 import argparse
 import time
@@ -154,8 +154,10 @@ class ModelDownloader:
         self.model_dir = Path(model_dir)
         self.model_dir.mkdir(parents=True, exist_ok=True)
     
-    def download_model(self, model_key: str) -> bool:
-        """Download a model with progress tracking."""
+    def download_model(self, model_key: str, on_progress: Optional[Callable[[float, int, int], None]] = None) -> bool:
+        """Download a model with progress tracking.
+        on_progress(percent: float, downloaded_bytes: int, total_bytes: int)
+        """
         if model_key not in MODELS:
             print(f"❌ Unknown model: {model_key}")
             return False
@@ -179,7 +181,7 @@ class ModelDownloader:
         for i, u in enumerate(urls, 1):
             print(f"   URL {i}/{len(urls)}: {u}")
             try:
-                self._download_with_retries(u, model_path)
+                self._download_with_retries(u, model_path, on_progress=on_progress)
                 print(f"\n✅ Download complete: {model_path}")
                 checksum = self._calculate_checksum(model_path)
                 print(f"   Checksum: {checksum}")
@@ -196,7 +198,8 @@ class ModelDownloader:
                 pass
         return False
     
-    def _download_with_retries(self, url: str, dest: Path, max_retries: int = 3, timeout: int = 30) -> None:
+    def _download_with_retries(self, url: str, dest: Path, max_retries: int = 3, timeout: int = 30,
+                               on_progress: Optional[Callable[[float, int, int], None]] = None) -> None:
         """Robust downloader with retries, progress, and cert handling."""
         headers = {
             "User-Agent": "Verdant/0.2 (+https://github.com/kaankutluturk/verdant)",
@@ -220,17 +223,19 @@ class ModelDownloader:
                             downloaded += len(chunk)
                             if total_size > 0:
                                 percent = (downloaded / total_size) * 100
-                                bar_length = 40
-                                filled_length = int(bar_length * downloaded // total_size)
-                                bar = '█' * filled_length + '-' * (bar_length - filled_length)
-                                print(f"\r   [{bar}] {percent:.1f}% ({downloaded / (1024*1024):.1f} MB)", end='', flush=True)
+                                if on_progress:
+                                    on_progress(percent, downloaded, total_size)
+                                else:
+                                    bar_length = 40
+                                    filled_length = int(bar_length * downloaded // total_size)
+                                    bar = '█' * filled_length + '-' * (bar_length - filled_length)
+                                    print(f"\r   [{bar}] {percent:.1f}% ({downloaded / (1024*1024):.1f} MB)", end='', flush=True)
                     tmp_path.replace(dest)
                 return
             except Exception as e:
                 last_err = e
                 print(f"\n⚠️  Attempt {attempt}/{max_retries} failed: {e}")
                 time.sleep(2 * attempt)
-        # If we exit loop, all retries failed
         raise RuntimeError(f"All download attempts failed: {last_err}")
 
     def _calculate_checksum(self, file_path: Path) -> str:
