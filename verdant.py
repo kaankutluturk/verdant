@@ -48,16 +48,25 @@ class ModelConfig:
     checksum: str
     size_mb: int
     min_ram_gb: int
+    candidate_urls: Optional[List[str]] = None
 
 # Model configurations
 MODELS = {
     "mistral-7b-q4": ModelConfig(
         name="Mistral 7B Instruct Q4",
-        url="https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.q4_0.gguf",
+        url="https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/resolve/main/mistral-7b-instruct-v0.2.Q4_K_M.gguf",
         filename="mistral-7b-instruct-q4.gguf",
-        checksum="",  # We'll calculate this after first download
+        checksum="",
         size_mb=3800,
-        min_ram_gb=6
+        min_ram_gb=6,
+        candidate_urls=[
+            # v0.2 common GGUF names
+            "https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/resolve/main/mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+            "https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/resolve/main/mistral-7b-instruct-v0.2.Q4_0.gguf",
+            # v0.1 as fallback
+            "https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf",
+            "https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.q4_0.gguf"
+        ]
     )
 }
 
@@ -136,33 +145,38 @@ class ModelDownloader:
         model = MODELS[model_key]
         model_path = self.model_dir / model.filename
         
-        # Check if already downloaded
         if model_path.exists():
             print(f"✅ Model already exists: {model_path}")
             return True
         
         print(f"🌐 Downloading {model.name}...")
         print(f"   Size: {model.size_mb} MB")
-        print(f"   URL: {model.url}")
+        urls: List[str] = []
+        if model.candidate_urls:
+            urls.extend(model.candidate_urls)
+        if model.url not in urls:
+            urls.append(model.url)
         
-        try:
-            self._download_with_retries(model.url, model_path)
-            print(f"\n✅ Download complete: {model_path}")
-            
-            # Calculate and save checksum
-            checksum = self._calculate_checksum(model_path)
-            print(f"   Checksum: {checksum}")
-            
-            return True
-            
-        except Exception as e:
-            print(f"\n❌ Download failed: {e}")
-            if model_path.exists():
-                try:
-                    model_path.unlink()  # Remove partial download
-                except Exception:
-                    pass
-            return False
+        last_error: Optional[Exception] = None
+        for i, u in enumerate(urls, 1):
+            print(f"   URL {i}/{len(urls)}: {u}")
+            try:
+                self._download_with_retries(u, model_path)
+                print(f"\n✅ Download complete: {model_path}")
+                checksum = self._calculate_checksum(model_path)
+                print(f"   Checksum: {checksum}")
+                return True
+            except Exception as e:
+                last_error = e
+                print(f"   ⚠️  Failed URL {i}: {e}")
+        
+        print(f"\n❌ Download failed after trying {len(urls)} URL(s): {last_error}")
+        if model_path.exists():
+            try:
+                model_path.unlink()
+            except Exception:
+                pass
+        return False
     
     def _download_with_retries(self, url: str, dest: Path, max_retries: int = 3, timeout: int = 30) -> None:
         """Robust downloader with retries, progress, and cert handling."""
