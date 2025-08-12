@@ -17,6 +17,7 @@ REM Single unified executable (GUI by default, CLI with --cli)
 pyinstaller --noconfirm ^
   --onefile ^
   --name VerdantApp ^
+  --windowed ^
   --add-data "presets.json;." ^
   --collect-all llama_cpp ^
   --icon assets/icon/verdant.ico ^
