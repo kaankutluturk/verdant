@@ -31,6 +31,13 @@ import argparse
 import time
 import json
 
+# Helper: resource path (handles PyInstaller onefile/onedir)
+def _resource_path(relative: str) -> Path:
+    base = getattr(sys, "_MEIPASS", None)
+    if base:
+        return Path(base) / relative
+    return Path(__file__).parent / relative
+
 # Core configuration
 @dataclass
 class ModelConfig:
@@ -55,7 +62,7 @@ MODELS = {
 
 PREFERENCES_DIR = Path.home() / ".verdant"
 PREFERENCES_FILE = PREFERENCES_DIR / "config.json"
-PRESETS_FILE = Path(__file__).parent / "presets.json"
+PRESETS_FILE = _resource_path("presets.json")
 
 class UserPreferences:
     """Load and save user preferences for Verdant."""
@@ -108,9 +115,16 @@ class PresetsManager:
 class ModelDownloader:
     """Handle model downloading with progress tracking and validation."""
     
-    def __init__(self, model_dir: str = "models"):
+    def __init__(self, model_dir: Optional[str] = None):
+        # For frozen apps, store models in LOCALAPPDATA/Velrdant/models to avoid temp dirs
+        if model_dir is None:
+            if getattr(sys, "frozen", False):
+                base = os.getenv("LOCALAPPDATA") or str(Path.home() / "AppData" / "Local")
+                model_dir = str(Path(base) / "Verdant" / "models")
+            else:
+                model_dir = "models"
         self.model_dir = Path(model_dir)
-        self.model_dir.mkdir(exist_ok=True)
+        self.model_dir.mkdir(parents=True, exist_ok=True)
     
     def download_model(self, model_key: str) -> bool:
         """Download a model with progress tracking."""
