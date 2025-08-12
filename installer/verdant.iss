@@ -23,7 +23,7 @@ OutputBaseFilename=verdant-setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
-SetupIconFile=..\assets\icon\verdant.ico
+SetupIconFile={#SourcePath}\..\assets\icon\verdant.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -32,9 +32,9 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "Additional icons:"; Flags: unchecked
 
 [Files]
-Source: "..\dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\presets.json"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\dist\{#UpdaterExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\..\dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\..\presets.json"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\..\dist\{#UpdaterExeName}"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\Verdant"; Filename: "{app}\{#MyAppExeName}"
@@ -62,7 +62,7 @@ procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssPostInstall then
   begin
-    VerFile := ExpandConstant('{app}') + '\\version.txt';
+    VerFile := ExpandConstant('{app}') + '\version.txt';
     SaveStringToFile(VerFile, GetVersionTag(), False);
   end;
 end; 
