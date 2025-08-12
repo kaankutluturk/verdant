@@ -28,8 +28,13 @@ jobs:
           pip install pyinstaller
 
       - name: Build EXE
+        shell: bash
         run: |
-          pyinstaller --noconfirm --onefile --name VerdantApp --add-data "presets.json;." verdant_app.py
+          pyinstaller --noconfirm \
+            --onefile \
+            --name VerdantApp \
+            --add-data "presets.json;." \
+            verdant_app.py
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
