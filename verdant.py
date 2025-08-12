@@ -25,10 +25,11 @@ import subprocess
 import hashlib
 import requests
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from dataclasses import dataclass
 import argparse
 import time
+import json
 
 # Core configuration
 @dataclass
@@ -51,6 +52,58 @@ MODELS = {
         min_ram_gb=6
     )
 }
+
+PREFERENCES_DIR = Path.home() / ".verdant"
+PREFERENCES_FILE = PREFERENCES_DIR / "config.json"
+PRESETS_FILE = Path(__file__).parent / "presets.json"
+
+class UserPreferences:
+    """Load and save user preferences for Verdant."""
+
+    DEFAULTS = {
+        "model": "mistral-7b-q4",
+        "threads": None,       # auto
+        "context": None,       # auto
+        "temperature": 0.7,
+        "top_p": 0.9,
+    }
+
+    @staticmethod
+    def load(path: Optional[Path] = None) -> Dict[str, Any]:
+        prefs_path = path or PREFERENCES_FILE
+        try:
+            if prefs_path.exists():
+                with open(prefs_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                # Merge with defaults
+                merged = dict(UserPreferences.DEFAULTS)
+                merged.update({k: v for k, v in data.items() if v is not None})
+                return merged
+        except Exception:
+            pass
+        return dict(UserPreferences.DEFAULTS)
+
+    @staticmethod
+    def save(prefs: Dict[str, Any], path: Optional[Path] = None) -> None:
+        prefs_path = path or PREFERENCES_FILE
+        prefs_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(prefs_path, "w", encoding="utf-8") as f:
+            json.dump(prefs, f, indent=2)
+
+class PresetsManager:
+    """Manage prompt presets from presets.json."""
+
+    @staticmethod
+    def load_presets() -> Dict[str, str]:
+        try:
+            if PRESETS_FILE.exists():
+                with open(PRESETS_FILE, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                if isinstance(data, dict):
+                    return {k: str(v) for k, v in data.items()}
+        except Exception:
+            pass
+        return {}
 
 class ModelDownloader:
     """Handle model downloading with progress tracking and validation."""
@@ -156,9 +209,14 @@ class ModelDownloader:
 class AIInference:
     """Handle AI model inference using llama-cpp-python."""
     
-    def __init__(self, model_path: Path):
+    def __init__(self, model_path: Path, n_ctx: Optional[int] = None, n_threads: Optional[int] = None,
+                 temperature: float = 0.7, top_p: float = 0.9):
         self.model_path = model_path
         self.llm = None
+        self.n_ctx_override = n_ctx
+        self.n_threads_override = n_threads
+        self.temperature = temperature
+        self.top_p = top_p
         self._load_model()
     
     def _load_model(self):
@@ -170,19 +228,20 @@ class AIInference:
             info = HardwareDetector.get_system_info()
             performance_tier = HardwareDetector.get_performance_tier()
             
-            # Configure based on hardware
+            # Configure based on hardware or overrides
             if performance_tier == "high":
-                n_ctx = 4096
-                n_threads = info["cpu_count"]
-                n_gpu_layers = 0  # CPU only for now
+                default_n_ctx = 4096
+                default_threads = info["cpu_count"]
             elif performance_tier == "medium":
-                n_ctx = 2048
-                n_threads = max(4, info["cpu_count"] // 2)
-                n_gpu_layers = 0
+                default_n_ctx = 2048
+                default_threads = max(4, info["cpu_count"] // 2)
             else:
-                n_ctx = 1024
-                n_threads = max(2, info["cpu_count"] // 2)
-                n_gpu_layers = 0
+                default_n_ctx = 1024
+                default_threads = max(2, info["cpu_count"] // 2)
+
+            n_ctx = self.n_ctx_override or default_n_ctx
+            n_threads = self.n_threads_override or default_threads
+            n_gpu_layers = 0  # CPU only for now
             
             print(f"🔧 Loading model with {n_threads} threads, context {n_ctx}")
             
@@ -217,8 +276,8 @@ class AIInference:
             response = self.llm(
                 formatted_prompt,
                 max_tokens=max_tokens,
-                temperature=0.7,
-                top_p=0.9,
+                temperature=self.temperature,
+                top_p=self.top_p,
                 stop=["</s>", "[INST]"],
                 echo=False
             )
@@ -300,7 +359,7 @@ class InteractiveChat:
     
     def __init__(self, ai_inference: AIInference):
         self.ai = ai_inference
-        self.conversation_history = []
+        self.conversation_history: List[Dict[str, Any]] = []
     
     def start_chat(self):
         """Start interactive chat session."""
@@ -308,6 +367,8 @@ class InteractiveChat:
         print("=" * 50)
         print("Type 'quit', 'exit', or 'bye' to end the session")
         print("Type 'clear' to clear conversation history")
+        print("Type 'save <file.json>' to save session history")
+        print("Type 'load <file.json>' to load a session history")
         print("Type 'help' for available commands")
         print("-" * 50)
         
@@ -318,17 +379,30 @@ class InteractiveChat:
                 if not user_input:
                     continue
                 
-                if user_input.lower() in ['quit', 'exit', 'bye']:
+                lower = user_input.lower()
+                if lower in ['quit', 'exit', 'bye']:
                     print("👋 Goodbye! Thanks for using Verdant.")
                     break
                 
-                if user_input.lower() == 'clear':
+                if lower == 'clear':
                     self.conversation_history.clear()
                     print("🧹 Conversation history cleared")
                     continue
                 
-                if user_input.lower() == 'help':
+                if lower == 'help':
                     self._show_help()
+                    continue
+                
+                if lower.startswith('save '):
+                    path = user_input.split(' ', 1)[1].strip()
+                    self.save_history(Path(path))
+                    print(f"💾 Saved conversation to {path}")
+                    continue
+                
+                if lower.startswith('load '):
+                    path = user_input.split(' ', 1)[1].strip()
+                    self.load_history(Path(path))
+                    print(f"📥 Loaded conversation from {path}")
                     continue
                 
                 # Generate response
@@ -352,11 +426,44 @@ class InteractiveChat:
     def _show_help(self):
         """Show available commands."""
         print("\n📚 Available Commands:")
-        print("  help     - Show this help message")
-        print("  clear    - Clear conversation history")
-        print("  quit     - Exit the chat session")
-        print("  exit     - Exit the chat session")
-        print("  bye      - Exit the chat session")
+        print("  help              - Show this help message")
+        print("  clear             - Clear conversation history")
+        print("  save <file.json>  - Save conversation history to a file")
+        print("  load <file.json>  - Load conversation history from a file")
+        print("  quit/exit/bye     - Exit the chat session")
+    
+    def save_history(self, file_path: Path):
+        data = {
+            'history': self.conversation_history,
+            'saved_at': time.time(),
+            'version': '1.0'
+        }
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+    
+    def load_history(self, file_path: Path):
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        self.conversation_history = data.get('history', [])
+
+
+def run_benchmark(ai: AIInference, runs: int = 1) -> None:
+    """Run a basic generation benchmark and print throughput."""
+    test_prompt = "Explain why local AI can be more eco‑friendly than cloud AI in 3 bullet points."
+    total_tokens = 0
+    total_time = 0.0
+    for i in range(runs):
+        start = time.time()
+        out = ai.generate_response(test_prompt, max_tokens=256)
+        elapsed = time.time() - start
+        total_time += elapsed
+        # Fallback token estimate if usage not provided
+        tokens = max(1, len(out.split()))
+        total_tokens += tokens
+        print(f"Run {i+1}: {tokens} est. tokens in {elapsed:.2f}s")
+    avg_tps = total_tokens / total_time if total_time > 0 else 0
+    print(f"\n📊 Benchmark: {total_tokens} est. tokens over {runs} run(s) in {total_time:.2f}s → {avg_tps:.1f} tok/s (approx)")
+
 
 def main():
     """CLI entry point."""
@@ -364,86 +471,160 @@ def main():
     parser.add_argument("--setup", action="store_true", help="Run initial setup")
     parser.add_argument("--prompt", type=str, help="Single prompt to process")
     parser.add_argument("--interactive", action="store_true", help="Interactive mode")
-    parser.add_argument("--model", type=str, default="mistral-7b-q4", help="Model to use")
-    
+    parser.add_argument("--model", type=str, help="Model to use")
+
+    # Phase 2: advanced controls
+    parser.add_argument("--threads", type=int, help="Override number of CPU threads")
+    parser.add_argument("--context", type=int, help="Override context window size")
+    parser.add_argument("--temperature", type=float, help="Sampling temperature (default from prefs)")
+    parser.add_argument("--top_p", type=float, help="Top-p nucleus sampling (default from prefs)")
+
+    # Presets
+    parser.add_argument("--preset", type=str, help="Use a prompt preset by name (presets.json)")
+    parser.add_argument("--list-presets", action="store_true", help="List available presets")
+
+    # Preferences
+    parser.add_argument("--use-prefs", action="store_true", help="Load and apply saved user preferences")
+    parser.add_argument("--save-prefs", action="store_true", help="Save the current settings to preferences")
+    parser.add_argument("--prefs-path", type=str, help="Custom path to preferences JSON")
+
+    # Sessions
+    parser.add_argument("--load-session", type=str, help="Load a conversation session JSON before starting")
+    parser.add_argument("--save-session", type=str, help="Save conversation session JSON after finishing")
+
+    # Benchmark
+    parser.add_argument("--benchmark", action="store_true", help="Run a simple generation benchmark and exit")
+    parser.add_argument("--benchmark-runs", type=int, default=1, help="Number of benchmark runs")
+
     args = parser.parse_args()
-    
+
+    # Load preferences
+    prefs_path = Path(args.prefs_path) if args.prefs_path else None
+    prefs = UserPreferences.load(prefs_path) if args.use_prefs else UserPreferences.DEFAULTS.copy()
+
+    # Apply CLI overrides
+    model_key = args.model or prefs.get("model") or "mistral-7b-q4"
+    threads = args.threads if args.threads is not None else prefs.get("threads")
+    context = args.context if args.context is not None else prefs.get("context")
+    temperature = args.temperature if args.temperature is not None else prefs.get("temperature", 0.7)
+    top_p = args.top_p if args.top_p is not None else prefs.get("top_p", 0.9)
+
+    if args.save_prefs:
+        new_prefs = {
+            "model": model_key,
+            "threads": threads,
+            "context": context,
+            "temperature": temperature,
+            "top_p": top_p,
+        }
+        UserPreferences.save(new_prefs, prefs_path)
+        print(f"💾 Preferences saved to {prefs_path or PREFERENCES_FILE}")
+
+    # Setup path
     if args.setup:
         print("🌱 Verdant Setup")
         print("=" * 50)
         
         # Check system requirements
-        if not HardwareDetector.check_requirements(args.model):
+        if not HardwareDetector.check_requirements(model_key):
             print("\n❌ Setup failed: System requirements not met")
             return
         
         # Download model
         downloader = ModelDownloader()
-        if not downloader.download_model(args.model):
+        if not downloader.download_model(model_key):
             print("\n❌ Setup failed: Model download failed")
             return
         
         # Validate model
-        if not downloader.validate_model(args.model):
+        if not downloader.validate_model(model_key):
             print("\n❌ Setup failed: Model validation failed")
             return
         
         print("\n🎉 Setup complete! You can now run:")
         print("   python verdant.py --interactive")
         return
-    
-    if args.interactive:
-        print("🚀 Starting Verdant Interactive Mode...")
-        
-        # Check if model exists
+
+    # List presets if requested
+    if args.list_presets:
+        presets = PresetsManager.load_presets()
+        if not presets:
+            print("(no presets found)")
+        else:
+            print("Available presets:")
+            for name in sorted(presets.keys()):
+                print(f"  - {name}")
+        return
+
+    # Ensure model is available if any action requires it
+    if args.interactive or args.prompt or args.benchmark:
         downloader = ModelDownloader()
-        model_path = downloader.get_model_path(args.model)
-        
+        model_path = downloader.get_model_path(model_key)
         if not model_path:
             print(f"❌ Model not found. Please run setup first:")
-            print(f"   python verdant.py --setup")
+            print(f"   python verdant.py --setup --model {model_key}")
             return
-        
+
         try:
             # Load AI model
-            ai = AIInference(model_path)
-            
-            # Start interactive chat
+            ai = AIInference(model_path, n_ctx=context, n_threads=threads, temperature=temperature, top_p=top_p)
+        except Exception as e:
+            print(f"❌ Failed to initialize model: {e}")
+            print("Please ensure llama-cpp-python is installed:")
+            print("   pip install llama-cpp-python")
+            return
+
+        # Benchmark mode
+        if args.benchmark:
+            print("🚀 Running benchmark...")
+            run_benchmark(ai, runs=args.benchmark_runs)
+            return
+
+        # Interactive mode
+        if args.interactive:
+            print("🚀 Starting Verdant Interactive Mode...")
             chat = InteractiveChat(ai)
+            # Load session if provided
+            if args.load_session:
+                try:
+                    chat.load_history(Path(args.load_session))
+                    print(f"📥 Loaded session from {args.load_session}")
+                except Exception as e:
+                    print(f"⚠️  Failed to load session: {e}")
+            
             chat.start_chat()
-            
-        except Exception as e:
-            print(f"❌ Failed to start interactive mode: {e}")
-            print("Please ensure llama-cpp-python is installed:")
-            print("   pip install llama-cpp-python")
-        return
-    
-    if args.prompt:
-        print("💬 Processing prompt...")
-        
-        # Check if model exists
-        downloader = ModelDownloader()
-        model_path = downloader.get_model_path(args.model)
-        
-        if not model_path:
-            print(f"❌ Model not found. Please run setup first:")
-            print(f"   python verdant.py --setup")
+
+            # Save session if requested
+            if args.save_session:
+                try:
+                    chat.save_history(Path(args.save_session))
+                    print(f"💾 Saved session to {args.save_session}")
+                except Exception as e:
+                    print(f"⚠️  Failed to save session: {e}")
             return
-        
-        try:
-            # Load AI model
-            ai = AIInference(model_path)
-            
-            # Generate response
-            response = ai.generate_response(args.prompt)
-            print(f"\n🤖 Verdant: {response}")
-            
-        except Exception as e:
-            print(f"❌ Failed to process prompt: {e}")
-            print("Please ensure llama-cpp-python is installed:")
-            print("   pip install llama-cpp-python")
-        return
-    
+
+        # Single prompt
+        if args.prompt:
+            # Apply preset if any
+            final_prompt = args.prompt
+            if args.preset:
+                presets = PresetsManager.load_presets()
+                preset = presets.get(args.preset)
+                if not preset:
+                    print(f"⚠️  Preset '{args.preset}' not found; proceeding without it")
+                else:
+                    final_prompt = f"{preset}\n\nUser prompt: {args.prompt}"
+
+            print("💬 Processing prompt...")
+            try:
+                response = ai.generate_response(final_prompt)
+                print(f"\n🤖 Verdant: {response}")
+            except Exception as e:
+                print(f"❌ Failed to process prompt: {e}")
+                print("Please ensure llama-cpp-python is installed:")
+                print("   pip install llama-cpp-python")
+            return
+
     print("Verdant MVP - Run with --setup first, then --interactive")
 
 if __name__ == "__main__":
