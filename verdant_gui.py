@@ -267,8 +267,13 @@ class VerdantGUI:
                 temp = float(self.temp_var.get())
                 top_p = float(self.top_p_var.get())
                 ai = AIInference(model_path, n_ctx=ctx, n_threads=threads, temperature=temp, top_p=top_p)
-                out = ai.generate_response(final)
-                self._append_response(out)
+                # Stream chunks when possible
+                def append_chunk(txt: str):
+                    self.response_text.insert("end", txt)
+                    self.response_text.see("end")
+                for chunk in ai.generate_response_stream(final):
+                    self.root.after(0, append_chunk, chunk)
+                    self.root.after(0, lambda: self.gen_progress.set(min(99, self.gen_progress.get() + 1)))
                 self._set_status("Done")
             except Exception as e:
                 self._append_response(f"❌ Error: {e}")

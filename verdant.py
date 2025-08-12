@@ -389,6 +389,37 @@ class AIInference:
         except Exception as e:
             return f"❌ Generation error: {e}"
 
+    def generate_response_stream(self, prompt: str, max_tokens: int = 512):
+        """Yield response chunks if streaming is supported; otherwise yield once with full text."""
+        if not self.llm:
+            yield "❌ Model not loaded"
+            return
+        
+        formatted_prompt = f"<s>[INST] {prompt} [/INST]"
+        try:
+            # Attempt streaming
+            resp_iter = self.llm(
+                formatted_prompt,
+                max_tokens=max_tokens,
+                temperature=self.temperature,
+                top_p=self.top_p,
+                stop=["</s>", "[INST]"],
+                echo=False,
+                stream=True
+            )
+            for chunk in resp_iter:
+                try:
+                    text = chunk.get("choices", [{}])[0].get("text", "")
+                except Exception:
+                    text = ""
+                if text:
+                    yield text
+        except Exception:
+            # Fallback to non-streaming
+            full = self.generate_response(prompt, max_tokens=max_tokens)
+            if full:
+                yield full
+
 class HardwareDetector:
     """Detect system capabilities and recommend optimal settings."""
     
