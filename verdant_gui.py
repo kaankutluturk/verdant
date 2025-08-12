@@ -548,6 +548,41 @@ class VerdantGUI:
         self.status_var.set(text)
 
 
+class _Tooltip:
+    def __init__(self, root, widget, text: str):
+        self.root = root
+        self.widget = widget
+        self.text = text
+        self.tip = None
+        try:
+            widget.bind("<Enter>", self._show)
+            widget.bind("<Leave>", self._hide)
+        except Exception:
+            pass
+
+    def _show(self, _event=None):
+        if self.tip:
+            return
+        try:
+            x = self.widget.winfo_rootx() + 10
+            y = self.widget.winfo_rooty() + self.widget.winfo_height() + 6
+            self.tip = tk.Toplevel(self.root)
+            self.tip.wm_overrideredirect(True)
+            self.tip.wm_geometry(f"+{int(x)}+{int(y)}")
+            lbl = tk.Label(self.tip, text=self.text, bg="#151a1e", fg="#eaf2f6", padx=8, pady=4, bd=0)
+            lbl.pack()
+        except Exception:
+            self.tip = None
+
+    def _hide(self, _event=None):
+        if self.tip:
+            try:
+                self.tip.destroy()
+            except Exception:
+                pass
+            self.tip = None
+
+
 def main():
     root = tk.Tk()
     VerdantGUI(root)
