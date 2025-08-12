@@ -2,6 +2,18 @@
 import sys
 import os
 import traceback
+import ctypes
+from pathlib import Path
+
+def _is_installed_app_dir(app_dir: Path) -> bool:
+    try:
+        # Consider installed if VerdantUpdater.exe exists or path is under Program Files
+        if (app_dir / "VerdantUpdater.exe").exists():
+            return True
+        pf = os.environ.get("ProgramFiles", "")
+        return str(app_dir).lower().startswith(str(pf).lower())
+    except Exception:
+        return False
 
 def _log_startup_error(exc: BaseException) -> str:
     try:
@@ -19,9 +31,82 @@ def _log_startup_error(exc: BaseException) -> str:
     except Exception:
         return ""
 
+def _read_installed_version(app_dir: Path) -> str:
+    try:
+        v = (app_dir / "version.txt").read_text(encoding="utf-8").strip()
+        return v if v else "v0.0.0"
+    except Exception:
+        return "v0.0.0"
+
+def _fetch_latest_tag(timeout_sec: float = 6.0) -> str | None:
+    try:
+        import requests  # lazy import to avoid bundling issues if removed
+        resp = requests.get(
+            "https://api.github.com/repos/kaankutluturk/verdant/releases/latest",
+            headers={"User-Agent": "VerdantApp/auto-update"},
+            timeout=timeout_sec,
+        )
+        if resp.status_code == 200:
+            data = resp.json()
+            tag = data.get("tag_name")
+            return str(tag) if tag else None
+    except Exception:
+        return None
+    return None
+
+def _launch_silent_updater(app_dir: Path) -> bool:
+    try:
+        updater = app_dir / "VerdantUpdater.exe"
+        if updater.exists():
+            import subprocess
+            subprocess.Popen([str(updater)], close_fds=True)
+            return True
+    except Exception:
+        pass
+    # Fallback: direct installer download and run
+    try:
+        import tempfile, subprocess, requests
+        url = "https://github.com/kaankutluturk/verdant/releases/latest/download/verdant-setup.exe"
+        tmp_path = Path(tempfile.gettempdir()) / "verdant-setup-auto.exe"
+        with requests.get(url, headers={"User-Agent": "VerdantApp/auto-update"}, timeout=30, stream=True) as r:
+            r.raise_for_status()
+            with open(tmp_path, "wb") as f:
+                for chunk in r.iter_content(1024 * 256):
+                    if chunk:
+                        f.write(chunk)
+        subprocess.Popen([str(tmp_path), "/VERYSILENT", "/NORESTART", "/SUPPRESSMSGBOXES"], close_fds=True)
+        return True
+    except Exception:
+        return False
+
+def _maybe_auto_update_on_launch() -> bool:
+    # Returns True if an update was triggered (and app should exit)
+    try:
+        if "--no-update" in sys.argv or os.environ.get("VERDANT_NO_UPDATE") == "1":
+            return False
+        app_dir = Path(getattr(sys, "_MEIPASS", os.path.dirname(sys.executable)) if getattr(sys, "frozen", False) else os.getcwd())
+        app_dir = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(os.getcwd())
+        if not _is_installed_app_dir(app_dir):
+            return False
+        installed = _read_installed_version(app_dir)
+        latest = _fetch_latest_tag()
+        if not latest or latest == installed:
+            return False
+        try:
+            ctypes.windll.user32.MessageBoxW(None, f"Updating Verdant to {latest}. The app will close and restart.", "Verdant", 0x40)
+        except Exception:
+            pass
+        if _launch_silent_updater(app_dir):
+            return True
+        return False
+    except Exception:
+        return False
+
 
 def main():
     try:
+        if _maybe_auto_update_on_launch():
+            return 0
         if "--cli" in sys.argv:
             # Remove the flag and delegate to CLI
             sys.argv = [sys.argv[0]] + [a for a in sys.argv[1:] if a != "--cli"]
@@ -35,7 +120,6 @@ def main():
         log_path = _log_startup_error(exc)
         # Best-effort user-visible error on Windows
         try:
-            import ctypes
             msg = f"Verdant failed to start.\n\n{exc}\n\nLog: {log_path or 'unavailable'}"
             ctypes.windll.user32.MessageBoxW(None, msg, "Verdant", 0x10)
         except Exception:

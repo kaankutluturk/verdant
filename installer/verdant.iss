@@ -64,17 +64,5 @@ begin
   begin
     VerFile := ExpandConstant('{app}') + '\version.txt';
     SaveStringToFile(VerFile, GetVersionTag(), False);
-    // Create/update scheduled task for auto-updates (daily at logon)
-    Exec('schtasks', '/Create /F /TN "Verdant Updater" /SC DAILY /RL HIGHEST /TR ' +
-      '"""' + ExpandConstant('{app}') + '\{#UpdaterExeName}"""', '', SW_HIDE, ewWaitUntilTerminated, nil);
-  end;
-end;
-
-procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
-begin
-  if CurUninstallStep = usUninstall then
-  begin
-    // Remove scheduled task
-    Exec('schtasks', '/Delete /F /TN "Verdant Updater"', '', SW_HIDE, ewWaitUntilTerminated, nil);
   end;
 end; 
