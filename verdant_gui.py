@@ -4,6 +4,9 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from tkinter import StringVar
 import tkinter.font as tkfont
+import sys
+import platform
+import ctypes
 
 from verdant import (
     PresetsManager,
@@ -73,6 +76,9 @@ class VerdantGUI:
         # chat structures
         self.chat_bubbles = []
         self.current_assistant_label = None
+        self.chat_canvas = None
+        self._typing_job = None
+        self._tooltips = []
 
         self._apply_theme()
         self._build_ui()
@@ -93,10 +99,14 @@ class VerdantGUI:
         style.map("Accent.TButton",
                   background=[("active", c["accent"]), ("disabled", c["panel"])],
                   foreground=[("disabled", c["muted"])])
+        style.configure("AccentHover.TButton", background=c["accent"], foreground=c["badge_text"], padding=8)
         style.configure("TButton", padding=6)
         style.configure("Card.TFrame", background=c["panel"], relief="flat")
         style.configure("Badge.TLabel", background=c["brand"], foreground=c["badge_text"], padding=4)
         style.configure("TProgressbar", troughcolor=c["panel"], background=c["brand"], darkcolor=c["brand"], lightcolor=c["brand"]) 
+
+        # Try to set dark titlebar on Windows
+        self._apply_titlebar_dark(self.theme_mode.get() == "dark")
 
     def _build_ui(self):
         c = self.colors
@@ -123,42 +133,55 @@ class VerdantGUI:
             lbl = ttk.Label(badges, text=text, style="Badge.TLabel")
             lbl.pack(side="left", padx=(0,8))
 
+        # Header divider
+        ttk.Separator(self.root, orient="horizontal").grid(row=1, column=0, sticky="ew", padx=16, pady=(4,0))
+
         # Setup progress bar
         self.setup_prog = ttk.Progressbar(self.root, maximum=100, variable=self.download_progress)
-        self.setup_prog.grid(row=1, column=0, sticky="ew", padx=16)
+        self.setup_prog.grid(row=2, column=0, sticky="ew", padx=16)
 
         # Chat card
         chat_card = ttk.Frame(self.root, style="Card.TFrame")
-        chat_card.grid(row=2, column=0, sticky="ew", padx=16, pady=(10,6))
+        chat_card.grid(row=3, column=0, sticky="ew", padx=16, pady=(10,6))
         ttk.Label(chat_card, textvariable=self.status_var, style="Muted.TLabel").pack(anchor="w", padx=10, pady=8)
 
         # Chat area (scrollable)
         chat_wrap = ttk.Frame(self.root)
-        chat_wrap.grid(row=3, column=0, sticky="nsew", padx=16, pady=(0,6))
-        self.root.rowconfigure(3, weight=1)
-        chat_canvas = tk.Canvas(chat_wrap, highlightthickness=0, bg=c["bg"])
-        chat_scroll = ttk.Scrollbar(chat_wrap, orient="vertical", command=chat_canvas.yview)
-        self.chat_frame = ttk.Frame(chat_canvas)
-        self.chat_frame.bind("<Configure>", lambda e: chat_canvas.configure(scrollregion=chat_canvas.bbox("all")))
-        chat_canvas.create_window((0, 0), window=self.chat_frame, anchor="nw")
-        chat_canvas.configure(yscrollcommand=chat_scroll.set)
-        chat_canvas.pack(side="left", fill="both", expand=True)
+        chat_wrap.grid(row=4, column=0, sticky="nsew", padx=16, pady=(0,6))
+        self.root.rowconfigure(4, weight=1)
+        self.chat_canvas = tk.Canvas(chat_wrap, highlightthickness=0, bg=c["bg"])
+        chat_scroll = ttk.Scrollbar(chat_wrap, orient="vertical", command=self.chat_canvas.yview)
+        self.chat_frame = ttk.Frame(self.chat_canvas)
+        self.chat_frame.bind("<Configure>", lambda e: self.chat_canvas.configure(scrollregion=self.chat_canvas.bbox("all")))
+        self.chat_canvas.create_window((0, 0), window=self.chat_frame, anchor="nw")
+        self.chat_canvas.configure(yscrollcommand=chat_scroll.set)
+        self.chat_canvas.pack(side="left", fill="both", expand=True)
         chat_scroll.pack(side="right", fill="y")
 
         # Input bar
         input_bar = ttk.Frame(self.root)
-        input_bar.grid(row=4, column=0, sticky="ew", padx=16, pady=(0, 14))
+        input_bar.grid(row=5, column=0, sticky="ew", padx=16, pady=(0, 14))
         input_bar.columnconfigure(0, weight=1)
         self.input_text = tk.Text(input_bar, height=3, wrap="word")
         self._style_text(self.input_text)
         self.input_text.grid(row=0, column=0, sticky="ew", padx=(0, 10))
-        self._attach_placeholder(self.input_text, "Write a message… (Enter to send, Shift+Enter = new line)")
+        self._attach_placeholder(self.input_text, "Write a message… (Enter/Ctrl+Enter to send, Shift+Enter = new line)")
         self.input_text.bind("<Return>", self._on_enter)
+        # Support Ctrl+Enter as send too
+        self.input_text.bind("<Control-Return>", self._on_ctrl_enter)
         self.input_text.bind("<Shift-Return>", lambda e: self._insert_newline())
-        ttk.Button(input_bar, text="Send", style="Accent.TButton", command=self.on_send).grid(row=0, column=1)
+        send_btn = ttk.Button(input_bar, text="Send", style="Accent.TButton", command=self.on_send)
+        send_btn.grid(row=0, column=1)
+        self._add_tooltip(send_btn, "Send (Enter/Ctrl+Enter)")
 
         # Initial system note
         self._add_system_note("Welcome to Verdant — your eco‑conscious local AI. Run Settings → Run Setup to download the model.")
+        # New chat button in header row (right under badges)
+        actions = ttk.Frame(header)
+        actions.pack(fill="x", pady=(6,0))
+        new_btn = ttk.Button(actions, text="New chat", command=self._new_chat)
+        new_btn.pack(side="left")
+        self._add_tooltip(new_btn, "Start a new conversation")
 
     def _style_text(self, w: tk.Text):
         c = self.colors
@@ -188,24 +211,79 @@ class VerdantGUI:
         except Exception:
             pass
 
+    def _apply_titlebar_dark(self, enable: bool):
+        # Windows dark titlebar via DWM API
+        if platform.system() != "Windows":
+            return
+        try:
+            hwnd = ctypes.windll.user32.GetParent(self.root.winfo_id())
+            DWMWA_USE_IMMERSIVE_DARK_MODE = 20  # 19 on older builds; we try both
+            val = ctypes.c_int(1 if enable else 0)
+            ctypes.windll.dwmapi.DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ctypes.byref(val), ctypes.sizeof(val))
+            # Try older index as fallback
+            if enable:
+                DWMWA_USE_IMMERSIVE_DARK_MODE_OLD = 19
+                ctypes.windll.dwmapi.DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE_OLD, ctypes.byref(val), ctypes.sizeof(val))
+        except Exception:
+            # No-op if unavailable
+            pass
+
     def _add_bubble(self, text: str, sender: str):
         c = self.colors
         row = ttk.Frame(self.chat_frame)
-        row.pack(fill="x", pady=4)
+        row.pack(fill="x", pady=6, padx=2)
+        # subtle separator between messages
+        sep = ttk.Separator(self.chat_frame, orient="horizontal")
+        sep.pack(fill="x")
         inner = ttk.Frame(row)
         if sender == "user":
-            inner.pack(anchor="e", padx=4)
+            inner.pack(anchor="e", padx=6)
             bg = c["user_bubble"]
         elif sender == "assistant":
-            inner.pack(anchor="w", padx=4)
+            inner.pack(anchor="w", padx=6)
             bg = c["assistant_bubble"]
         else:
-            inner.pack(anchor="center", padx=4)
+            inner.pack(anchor="center", padx=6)
             bg = c["panel"]
-        lbl = tk.Label(inner, text=text, wraplength=800, justify="left",
-                       bg=bg, fg=c["text"], padx=12, pady=10, bd=0, highlightthickness=0)
-        lbl.pack(side="left", fill="x")
+        # timestamp (muted)
+        import datetime as _dt
+        ts = _dt.datetime.now().strftime("%H:%M")
+        ttk.Label(inner, text=ts, style="Muted.TLabel").pack(anchor=("w" if sender != "user" else "e"))
+        # Bubble canvas for rounded background
+        bubble_row = ttk.Frame(inner)
+        bubble_row.pack(fill="x")
+        canvas = tk.Canvas(bubble_row, bg=c["bg"], highlightthickness=0, bd=0, width=860, height=10)
+        canvas.pack(side="left", fill="x", expand=True)
+        # Create label for text
+        lbl = tk.Label(canvas, text=text, wraplength=820, justify="left",
+                       bg=bg, fg=c["text"], padx=14, pady=12, bd=0, highlightthickness=0, font=("Segoe UI", 10))
+        # Measure and draw rounded rect then place label
+        self.root.update_idletasks()
+        lbl.update_idletasks()
+        req_w = min(820, max(200, lbl.winfo_reqwidth()))
+        req_h = max(34, lbl.winfo_reqheight())
+        pad = 8
+        canvas.configure(height=req_h + pad*2)
+        self._draw_rounded_rect(canvas, 4, 4, req_w + pad*2, req_h + pad*2, 12, fill=bg, outline="")
+        canvas.create_window(pad+4, pad+4, anchor="nw", window=lbl)
+        if sender == "assistant":
+            def do_copy(l=lbl):
+                self.root.clipboard_clear()
+                self.root.clipboard_append(l.cget("text"))
+                self._set_status("Copied")
+            btn = ttk.Button(bubble_row, text="Copy", style="Accent.TButton", command=do_copy)
+            btn.pack(side="right", padx=(8,0))
+            self._add_tooltip(btn, "Copy to clipboard")
+            def on_enter(_): btn.configure(style="AccentHover.TButton")
+            def on_leave(_): btn.configure(style="Accent.TButton")
+            btn.bind("<Enter>", on_enter)
+            btn.bind("<Leave>", on_leave)
         self.chat_bubbles.append((row, lbl, sender))
+        # auto-scroll to bottom
+        try:
+            self.root.after(0, lambda: (self.chat_canvas.update_idletasks(), self.chat_canvas.yview_moveto(1)))
+        except Exception:
+            pass
 
     def _add_system_note(self, text: str):
         self._add_bubble(text, sender="system")
@@ -226,6 +304,10 @@ class VerdantGUI:
         self.on_send()
         return "break"
 
+    def _on_ctrl_enter(self, event):
+        self.on_send()
+        return "break"
+
     def _insert_newline(self):
         self.input_text.insert("insert", "\n")
 
@@ -235,7 +317,19 @@ class VerdantGUI:
         self._disable_send(True)
         self._add_bubble("", sender="assistant")
         self.current_assistant_label = self.chat_bubbles[-1][1]
+        self._start_typing_indicator()
         self._run_setup_if_needed_then_generate(prompt)
+
+    def _new_chat(self):
+        # Clear chat bubbles and reset state
+        for row, _, _ in self.chat_bubbles:
+            try:
+                row.destroy()
+            except Exception:
+                pass
+        self.chat_bubbles.clear()
+        self.current_assistant_label = None
+        self._add_system_note("New chat started.")
 
     def _disable_send(self, busy: bool):
         for widget in self.root.winfo_children():
@@ -391,7 +485,57 @@ class VerdantGUI:
             finally:
                 self.is_generating = False
                 self._disable_send(False)
+                self._stop_typing_indicator()
         threading.Thread(target=task, daemon=True).start()
+
+    def _start_typing_indicator(self):
+        # Animate ellipsis in status during generation
+        if self._typing_job:
+            return
+        dots = ["·  ", "·· ", "···", " ··", "  ·", "   "]
+        i = {"n": 0}
+        def tick():
+            self.status_var.set("Generating " + dots[i["n"] % len(dots)])
+            i["n"] += 1
+            self._typing_job = self.root.after(300, tick)
+        self._typing_job = self.root.after(300, tick)
+
+    def _stop_typing_indicator(self):
+        if self._typing_job:
+            try:
+                self.root.after_cancel(self._typing_job)
+            except Exception:
+                pass
+            self._typing_job = None
+        self.status_var.set("Done")
+
+    def _draw_rounded_rect(self, canvas: tk.Canvas, x1, y1, x2, y2, r, **kwargs):
+        # Draw a rounded rectangle on Canvas
+        points = [
+            x1+r, y1,
+            x2-r, y1,
+            x2, y1,
+            x2, y1+r,
+            x2, y2-r,
+            x2, y2,
+            x2-r, y2,
+            x1+r, y2,
+            x1, y2,
+            x1, y2-r,
+            x1, y1+r,
+            x1, y1,
+        ]
+        # Approximate by drawing arcs + rectangles
+        canvas.create_arc(x2-2*r, y1, x2, y1+2*r, start=0, extent=90, style='pieslice', **kwargs)
+        canvas.create_arc(x1, y1, x1+2*r, y1+2*r, start=90, extent=90, style='pieslice', **kwargs)
+        canvas.create_arc(x1, y2-2*r, x1+2*r, y2, start=180, extent=90, style='pieslice', **kwargs)
+        canvas.create_arc(x2-2*r, y2-2*r, x2, y2, start=270, extent=90, style='pieslice', **kwargs)
+        canvas.create_rectangle(x1+r, y1, x2-r, y2, **kwargs)
+        canvas.create_rectangle(x1, y1+r, x2, y2-r, **kwargs)
+
+    def _add_tooltip(self, widget, text: str):
+        tip = _Tooltip(self.root, widget, text)
+        self._tooltips.append(tip)
 
     def _parse_int(self, s: str):
         try:
