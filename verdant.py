@@ -30,6 +30,7 @@ from dataclasses import dataclass
 import argparse
 import time
 import json
+import certifi
 
 # Helper: resource path (handles PyInstaller onefile/onedir)
 def _resource_path(relative: str) -> Path:
@@ -145,26 +146,7 @@ class ModelDownloader:
         print(f"   URL: {model.url}")
         
         try:
-            response = requests.get(model.url, stream=True)
-            response.raise_for_status()
-            
-            total_size = int(response.headers.get('content-length', 0))
-            downloaded = 0
-            
-            with open(model_path, 'wb') as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:
-                        f.write(chunk)
-                        downloaded += len(chunk)
-                        
-                        # Progress bar
-                        if total_size > 0:
-                            percent = (downloaded / total_size) * 100
-                            bar_length = 40
-                            filled_length = int(bar_length * downloaded // total_size)
-                            bar = '█' * filled_length + '-' * (bar_length - filled_length)
-                            print(f"\r   [{bar}] {percent:.1f}% ({downloaded / (1024*1024):.1f} MB)", end='', flush=True)
-            
+            self._download_with_retries(model.url, model_path)
             print(f"\n✅ Download complete: {model_path}")
             
             # Calculate and save checksum
@@ -176,9 +158,49 @@ class ModelDownloader:
         except Exception as e:
             print(f"\n❌ Download failed: {e}")
             if model_path.exists():
-                model_path.unlink()  # Remove partial download
+                try:
+                    model_path.unlink()  # Remove partial download
+                except Exception:
+                    pass
             return False
     
+    def _download_with_retries(self, url: str, dest: Path, max_retries: int = 3, timeout: int = 30) -> None:
+        """Robust downloader with retries, progress, and cert handling."""
+        headers = {
+            "User-Agent": "Verdant/0.2 (+https://github.com/kaankutluturk/verdant)",
+            "Accept": "application/octet-stream, */*"
+        }
+        last_err: Optional[Exception] = None
+        for attempt in range(1, max_retries + 1):
+            try:
+                with requests.get(url, stream=True, headers=headers, timeout=timeout, verify=certifi.where(), allow_redirects=True) as r:
+                    r.raise_for_status()
+                    total_size = int(r.headers.get('content-length', 0))
+                    downloaded = 0
+                    tmp_path = dest.with_suffix(dest.suffix + ".part")
+                    if tmp_path.exists():
+                        tmp_path.unlink()
+                    with open(tmp_path, 'wb') as f:
+                        for chunk in r.iter_content(chunk_size=1024 * 256):  # 256KB
+                            if not chunk:
+                                continue
+                            f.write(chunk)
+                            downloaded += len(chunk)
+                            if total_size > 0:
+                                percent = (downloaded / total_size) * 100
+                                bar_length = 40
+                                filled_length = int(bar_length * downloaded // total_size)
+                                bar = '█' * filled_length + '-' * (bar_length - filled_length)
+                                print(f"\r   [{bar}] {percent:.1f}% ({downloaded / (1024*1024):.1f} MB)", end='', flush=True)
+                    tmp_path.replace(dest)
+                return
+            except Exception as e:
+                last_err = e
+                print(f"\n⚠️  Attempt {attempt}/{max_retries} failed: {e}")
+                time.sleep(2 * attempt)
+        # If we exit loop, all retries failed
+        raise RuntimeError(f"All download attempts failed: {last_err}")
+
     def _calculate_checksum(self, file_path: Path) -> str:
         """Calculate SHA256 checksum of a file."""
         sha256_hash = hashlib.sha256()

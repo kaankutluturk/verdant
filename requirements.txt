@@ -1,3 +1,4 @@
-llama-cpp-python>=0.2.20
-psutil>=5.9.0
+llama-cpp-python
+psutil
 requests>=2.31.0
+certifi>=2024.2.2
