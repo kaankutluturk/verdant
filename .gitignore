@@ -2,4 +2,28 @@
 build/
 dist/
 *.spec
-__pycache__/ 
+__pycache__/
+
+# Python cache
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local models
+models/
+*.gguf
+*.bin
+*.safetensors
+
+# Node/website cache
+node_modules/ 

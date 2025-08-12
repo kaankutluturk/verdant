@@ -44,6 +44,7 @@ def demo_hardware_detection():
         print(f"❌ Hardware detection failed: {e}")
         return False
 
+
 def demo_model_management():
     """Demonstrate model management capabilities."""
     print("\n📦 Model Management Demo")
@@ -80,6 +81,7 @@ def demo_model_management():
         print(f"❌ Model management demo failed: {e}")
         return False
 
+
 def demo_cli_interface():
     """Demonstrate CLI interface capabilities."""
     print("\n💻 CLI Interface Demo")
@@ -107,6 +109,7 @@ def demo_cli_interface():
         print(f"❌ CLI interface demo failed: {e}")
         return False
 
+
 def demo_cross_platform():
     """Demonstrate cross-platform capabilities."""
     print("\n🌍 Cross-Platform Demo")
@@ -129,6 +132,7 @@ def demo_cross_platform():
         print("🐧 Linux optimizations enabled")
     
     return True
+
 
 def main():
     """Run all demos."""
@@ -170,6 +174,7 @@ def main():
         print(f"\n⚠️  {total - passed} demo(s) failed. Please check the errors above.")
     
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()
