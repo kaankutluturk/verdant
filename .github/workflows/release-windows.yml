@@ -58,7 +58,8 @@ jobs:
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.4
 
       - name: Build Installer (Inno Setup)
-        run: iscc installer\verdant.iss
+        working-directory: installer
+        run: iscc verdant.iss
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
