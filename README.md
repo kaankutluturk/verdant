@@ -6,6 +6,8 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Status: MVP](https://img.shields.io/badge/status-MVP-orange.svg)]()
 
+**Website**: [https://kaankutluturk.github.io/verdant/](https://kaankutluturk.github.io/verdant/)
+
 ## What is Verdant?
 
 Verdant is the world's first eco-conscious AI assistant that runs entirely on your device. Built for environmentally conscious students and developers who want powerful AI without the massive carbon footprint of cloud computing.
@@ -222,7 +224,7 @@ This GitHub version is a demo with basic features. For the complete Verdant expe
 - Professional tools (GUI, batch processing, plugins)
 - Premium support and updates
 
-**Visit our website for the full version.**
+**Visit the website for the full version: https://kaankutluturk.github.io/verdant/**
 
 ---
 
