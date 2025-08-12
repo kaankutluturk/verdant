@@ -329,6 +329,13 @@ class AIInference:
 
             n_ctx = self.n_ctx_override or default_n_ctx
             n_threads = self.n_threads_override or default_threads
+            # Enforce capability caps (e.g., demo vs premium)
+            try:
+                caps = get_capabilities()
+                if isinstance(caps, dict) and "max_context" in caps and isinstance(caps["max_context"], int):
+                    n_ctx = min(n_ctx, int(caps["max_context"]))
+            except Exception:
+                pass
             n_gpu_layers = 0  # CPU only for now
             
             print(f"🔧 Loading model with {n_threads} threads, context {n_ctx}")
