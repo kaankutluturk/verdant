@@ -56,25 +56,19 @@ def _fetch_latest_tag(timeout_sec: float = 6.0) -> str | None:
 
 def _launch_silent_updater(app_dir: Path) -> bool:
     try:
-        updater = app_dir / "VerdantUpdater.exe"
-        if updater.exists():
-            import subprocess
-            subprocess.Popen([str(updater)], close_fds=True)
-            return True
-    except Exception:
-        pass
-    # Fallback: direct installer download and run
-    try:
-        import tempfile, subprocess, requests
-        url = "https://github.com/kaankutluturk/verdant/releases/latest/download/verdant-setup.exe"
-        tmp_path = Path(tempfile.gettempdir()) / "verdant-setup-auto.exe"
-        with requests.get(url, headers={"User-Agent": "VerdantApp/auto-update"}, timeout=30, stream=True) as r:
-            r.raise_for_status()
-            with open(tmp_path, "wb") as f:
-                for chunk in r.iter_content(1024 * 256):
-                    if chunk:
-                        f.write(chunk)
-        subprocess.Popen([str(tmp_path), "/VERYSILENT", "/NORESTART", "/SUPPRESSMSGBOXES"], close_fds=True)
+        # Instead of running an installer, prompt user to download latest EXE
+        latest_url = "https://github.com/kaankutluturk/verdant/releases/latest/download/VerdantApp.exe"
+        try:
+            ctypes.windll.user32.MessageBoxW(
+                None,
+                f"A new version of Verdant is available.\n\nClick OK to open the download page.",
+                "Verdant Update",
+                0x40,
+            )
+        except Exception:
+            pass
+        import webbrowser
+        webbrowser.open(latest_url)
         return True
     except Exception:
         return False
