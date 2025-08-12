@@ -1,3 +1,7 @@
+<p align="left">
+  <img src="assets/logo/verdant-wordmark.svg" alt="Verdant" height="64"/>
+</p>
+
 # Verdant - Eco-Conscious Local AI
 
 > **The world's first truly green AI assistant. Runs entirely on your device, using 95% less energy than cloud AI while helping you make eco-friendly choices.**
