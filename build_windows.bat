@@ -13,22 +13,15 @@ REM Clean previous builds
 rmdir /s /q build 2>nul
 rmdir /s /q dist 2>nul
 
-REM Build CLI executable
+REM Single unified executable (GUI by default, CLI with --cli)
 pyinstaller --noconfirm ^
   --onefile ^
-  --name Verdant ^
+  --name VerdantApp ^
   --add-data "presets.json;." ^
-  verdant.py || goto :error
-
-REM Optional: Build GUI executable
-pyinstaller --noconfirm ^
-  --onefile ^
-  --name VerdantGUI ^
-  --add-data "presets.json;." ^
-  verdant_gui.py || goto :error
+  verdant_app.py || goto :error
 
 echo.
-echo Build complete. Check the dist\ folder for Verdant.exe and VerdantGUI.exe
+echo Build complete. Check the dist\ folder for VerdantApp.exe
 goto :eof
 
 :error
