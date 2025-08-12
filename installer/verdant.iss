@@ -7,7 +7,7 @@
 #define UpdaterExeName "VerdantUpdater.exe"
 
 [Setup]
-AppId={{C8ED37B1-0F3D-4E0B-9B1E-2C7B0E0F47E1}
+AppId={{C8ED37B1-0F3D-4E0B-9B1E-2C7B0E0F47E1}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
@@ -62,7 +62,7 @@ procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssPostInstall then
   begin
-    VerFile := ExpandConstant('{app}') + '\version.txt';
+    VerFile := ExpandConstant('{app}') + '\\version.txt';
     SaveStringToFile(VerFile, GetVersionTag(), False);
   end;
 end; 
