@@ -1,6 +1,10 @@
 ; Verdant Installer Script
 #define MyAppName "Verdant"
-#define MyAppVersion "{#GetEnv("GITHUB_REF_NAME")}"
+#if GetEnv('GITHUB_REF_NAME') != ""
+  #define MyAppVersion GetEnv('GITHUB_REF_NAME')
+#else
+  #define MyAppVersion "v0.0.0"
+#endif
 #define MyAppPublisher "Verdant Leaf"
 #define MyAppURL "https://kaankutluturk.github.io/verdant/"
 #define MyAppExeName "VerdantApp.exe"
