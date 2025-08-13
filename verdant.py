@@ -286,13 +286,14 @@ class AIInference:
     """Handle AI model inference using llama-cpp-python."""
     
     def __init__(self, model_path: Path, n_ctx: Optional[int] = None, n_threads: Optional[int] = None,
-                 temperature: float = 0.7, top_p: float = 0.9):
+                 temperature: float = 0.7, top_p: float = 0.9, n_gpu_layers_override: Optional[int] = None):
         self.model_path = model_path
         self.llm = None
         self.n_ctx_override = n_ctx
         self.n_threads_override = n_threads
         self.temperature = temperature
         self.top_p = top_p
+        self.n_gpu_layers_override = n_gpu_layers_override
         self._load_model()
     
     def _load_model(self):
@@ -336,7 +337,13 @@ class AIInference:
                     n_ctx = min(n_ctx, int(caps["max_context"]))
             except Exception:
                 pass
-            n_gpu_layers = 0  # CPU only for now
+            # GPU layers (optional, depends on installed wheel build)
+            n_gpu_layers = 0
+            try:
+                if self.n_gpu_layers_override is not None:
+                    n_gpu_layers = max(0, int(self.n_gpu_layers_override))
+            except Exception:
+                n_gpu_layers = 0
             
             print(f"🔧 Loading model with {n_threads} threads, context {n_ctx}")
             
@@ -605,6 +612,7 @@ def main():
     parser.add_argument("--temperature", type=float, help="Sampling temperature (default from prefs)")
     parser.add_argument("--top_p", type=float, help="Top-p nucleus sampling (default from prefs)")
     parser.add_argument("--gpu", action="store_true", help="Enable GPU acceleration (Premium)")
+    parser.add_argument("--gpu-layers", type=int, help="Number of layers to offload to GPU (if supported)")
 
     # Presets
     parser.add_argument("--preset", type=str, help="Use a prompt preset by name (presets.json)")
@@ -652,6 +660,7 @@ def main():
             "context": context,
             "temperature": temperature,
             "top_p": top_p,
+            "gpu_layers": args.gpu_layers,
         }
         UserPreferences.save(new_prefs, prefs_path)
         print(f"💾 Preferences saved to {prefs_path or PREFERENCES_FILE}")
@@ -703,7 +712,11 @@ def main():
 
         try:
             # Load AI model (GPU toggle gated; this build uses CPU-only llama.cpp)
-            ai = AIInference(model_path, n_ctx=context, n_threads=threads, temperature=temperature, top_p=top_p)
+            n_gpu_layers = None
+            if args.gpu:
+                want_layers = args.gpu_layers if args.gpu_layers is not None else (20 if HardwareDetector.get_performance_tier() == "high" else 10)
+                n_gpu_layers = max(0, int(want_layers))
+            ai = AIInference(model_path, n_ctx=context, n_threads=threads, temperature=temperature, top_p=top_p, n_gpu_layers_override=n_gpu_layers)
         except Exception as e:
             print(f"❌ Failed to initialize model: {e}")
             print("Please ensure llama-cpp-python is installed:")

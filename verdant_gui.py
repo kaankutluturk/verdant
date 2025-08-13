@@ -327,10 +327,32 @@ class VerdantGUI:
         tb.Label(input_wrap, textvariable=self.char_count_var, bootstyle=SECONDARY).grid(row=1, column=0, sticky="e", pady=(4,0))
 
         self._add_system_note("Welcome to Verdant Demo — eco‑conscious local AI. Use Settings → Run Setup to download the model, or try instant demo in Settings.")
-        try:
-            self.input_text.focus_set()
-        except Exception:
-            pass
+		# Add centered hero logo in empty state
+		try:
+			if not self.chat_bubbles:
+				logo_path = Path(__file__).resolve().parent / "assets" / "logo" / "verdant-wordmark.svg"
+				# Fallback to ICO if SVG cannot be displayed in Tk; render via Pillow to PNG
+				from PIL import Image, ImageTk
+				png_path = logo_path.with_suffix('.png')
+				if logo_path.exists():
+					try:
+						import cairosvg
+						if not png_path.exists():
+							cairosvg.svg2png(url=str(logo_path), write_to=str(png_path), output_width=480)
+					except Exception:
+						pass
+					if png_path.exists():
+						img = Image.open(str(png_path))
+						ph = ImageTk.PhotoImage(img)
+						logo_lbl = tk.Label(self.chat_canvas, image=ph, bg=self.root.style.lookup("TFrame", "background"))
+						logo_lbl.image = ph
+						self.chat_canvas.create_window((self.chat_canvas.winfo_width()//2, 120), window=logo_lbl, anchor="n")
+		except Exception:
+			pass
+		try:
+			self.input_text.focus_set()
+		except Exception:
+			pass
 
     def _style_text(self, w: tk.Text):
         c = self.root.style.lookup("TFrame", "background") or "#0F1214"
@@ -365,8 +387,6 @@ class VerdantGUI:
         else:
             inner.pack(anchor="center", padx=6)
             bg = c
-        import datetime as _dt
-        ts = _dt.datetime.now().strftime("%H:%M")
         bubble_row = tb.Frame(inner)
         bubble_row.pack(fill="x")
         canvas = tk.Canvas(bubble_row, bg=c, highlightthickness=0, bd=0, width=860, height=10)
@@ -381,7 +401,22 @@ class VerdantGUI:
         canvas.configure(height=req_h + pad*2)
         rect_id = self._draw_rounded_rect(canvas, 4, 4, req_w + pad*2, req_h + pad*2, 14, fill=bg, outline="")
         canvas.create_window(pad+4, pad+4, anchor="nw", window=lbl)
-        # Track bubble for dynamic reflow and copying
+        # Fade-in animation
+        try:
+            alpha_steps = [int(x) for x in range(30, 101, 10)]
+            def _fade(i=0):
+                try:
+                    if i < len(alpha_steps):
+                        val = alpha_steps[i]
+                        lbl.configure(fg="#EAF2F6")
+                        canvas.itemconfig(rect_id, fill=bg)
+                        self.root.after(16, lambda: _fade(i+1))
+                except Exception:
+                    pass
+            self.root.after(0, _fade)
+        except Exception:
+            pass
+        # Track bubble
         self._bubble_items[lbl] = (canvas, rect_id, pad)
         # Right-click to copy
         def _copy_event(_ev=None, l=lbl):

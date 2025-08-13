@@ -4,3 +4,5 @@ requests>=2.31.0
 certifi>=2024.2.2
 Pillow>=10.3.0
 ttkbootstrap>=1.10.1
+cairosvg>=2.7.0
+PySide6>=6.6.0

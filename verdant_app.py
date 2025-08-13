@@ -107,9 +107,13 @@ def main():
             from verdant import main as cli_main
             return cli_main()
         else:
-            # Default to GUI
-            import verdant_gui  # will run its own main
-            return verdant_gui.main()
+            # Prefer Qt GUI if available, fallback to Tk
+            try:
+                import verdant_qt as ui
+                return ui.main()
+            except Exception:
+                import verdant_gui as ui
+                return ui.main()
     except Exception as exc:
         log_path = _log_startup_error(exc)
         # Best-effort user-visible error on Windows
