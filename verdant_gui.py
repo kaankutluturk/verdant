@@ -69,9 +69,15 @@ class VerdantGUI:
         self.chat_history = []  # list of {role: 'user'|'assistant', content: str}
         # New state
         self._active_preset = None
-        self.temp_var = tk.DoubleVar(value=float(self.prefs.get("temperature", 0.7)))
-        self.top_p_var = tk.DoubleVar(value=float(self.prefs.get("top_p", 0.9)))
-        self.ctx_var = tk.IntVar(value=int(self.prefs.get("context", self.caps.get("max_context", 2048))))
+        cap_ctx = self.caps.get("max_context", 2048)
+        try:
+            cap_ctx = int(cap_ctx) if cap_ctx is not None else 2048
+        except Exception:
+            cap_ctx = 2048
+        # Safely coerce prefs values (avoid int/float(None))
+        self.temp_var = tk.DoubleVar(value=self._as_float(self.prefs.get("temperature", 0.7), 0.7))
+        self.top_p_var = tk.DoubleVar(value=self._as_float(self.prefs.get("top_p", 0.9), 0.9))
+        self.ctx_var = tk.IntVar(value=self._as_int(self.prefs.get("context"), cap_ctx))
         self.instant_demo_var = tk.BooleanVar(value=bool(self.prefs.get("instant_demo", True)))
         self.eco_savings_var = StringVar(value="🌿 0.00 Wh")
         self._eco_tokens_est = 0
@@ -91,6 +97,22 @@ class VerdantGUI:
                 self._open_onboarding()
         except Exception:
             pass
+
+    def _as_int(self, value, default: int) -> int:
+        try:
+            if value is None:
+                return default
+            return int(value)
+        except Exception:
+            return default
+
+    def _as_float(self, value, default: float) -> float:
+        try:
+            if value is None:
+                return default
+            return float(value)
+        except Exception:
+            return default
 
     def _set_process_dpi_awareness(self):
         if platform.system() != "Windows":
@@ -526,9 +548,14 @@ class VerdantGUI:
     def on_load_prefs(self):
         self.prefs = UserPreferences.load(self.prefs_path)
         self.model_key.set(self.prefs.get("model", "mistral-7b-q4"))
-        self.temp_var.set(float(self.prefs.get("temperature", 0.7)))
-        self.top_p_var.set(float(self.prefs.get("top_p", 0.9)))
-        self.ctx_var.set(int(self.prefs.get("context", self.caps.get("max_context", 2048))))
+        self.temp_var.set(self._as_float(self.prefs.get("temperature", 0.7), 0.7))
+        self.top_p_var.set(self._as_float(self.prefs.get("top_p", 0.9), 0.9))
+        cap_ctx = self.caps.get("max_context", 2048)
+        try:
+            cap_ctx = int(cap_ctx) if cap_ctx is not None else 2048
+        except Exception:
+            cap_ctx = 2048
+        self.ctx_var.set(self._as_int(self.prefs.get("context"), cap_ctx))
         self.instant_demo_var.set(bool(self.prefs.get("instant_demo", True)))
         self.status_var.set("Preferences loaded")
 
