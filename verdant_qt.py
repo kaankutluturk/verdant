@@ -746,6 +746,20 @@ class MainWindow(QtWidgets.QMainWindow):
 		self._rebuild_chat_list()
 
 
+class SendTextEdit(QtWidgets.QPlainTextEdit):
+	def __init__(self, parent=None):
+		super().__init__(parent)
+		self.setTabChangesFocus(True)
+	def keyPressEvent(self, e: QtGui.QKeyEvent):
+		if e.key() in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter) and not (e.modifiers() & QtCore.Qt.ShiftModifier):
+			# Parent MainWindow handles send
+			p = self.parent()
+			if hasattr(p, "_on_send"):
+				p._on_send()
+			return
+		super().keyPressEvent(e)
+
+
 def main():
 	app = QtWidgets.QApplication(sys.argv)
 	app.setApplicationDisplayName(APP_TITLE)
