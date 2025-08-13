@@ -154,6 +154,127 @@ class SettingsDialog(QtWidgets.QDialog):
 			"instant_demo": bool(self.instant_demo.isChecked()),
 		}
 
+class TemplatesDialog(QtWidgets.QDialog):
+	def __init__(self, parent=None):
+		super().__init__(parent)
+		self.setWindowTitle("Templates")
+		self.setStyleSheet(f"background: {BG}; color: {FG};")
+		self._build()
+		self.selected: Optional[str] = None
+		self.presets = PresetsManager.load_presets()
+		self._populate()
+	def _build(self):
+		v = QtWidgets.QVBoxLayout(self)
+		self.list = QtWidgets.QListWidget()
+		self.list.currentItemChanged.connect(self._on_select)
+		self.preview = QtWidgets.QPlainTextEdit(); self.preview.setReadOnly(True)
+		self.preview.setStyleSheet(f"background: {BG}; color: {FG}; border: 1px solid #1a2228;")
+		split = QtWidgets.QSplitter(); split.setOrientation(QtCore.Qt.Horizontal)
+		split.addWidget(self.list); split.addWidget(self.preview)
+		v.addWidget(split, 1)
+		btns = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+		btns.accepted.connect(self._use)
+		btns.rejected.connect(self.reject)
+		v.addWidget(btns)
+	def _populate(self):
+		self.list.clear()
+		for name in sorted(self.presets.keys()):
+			self.list.addItem(name)
+	def _on_select(self, cur, _prev):
+		if not cur: return
+		name = cur.text(); text = self.presets.get(name, "")
+		self.preview.setPlainText(text)
+		self.selected = name
+	def _use(self):
+		if not self.selected: return
+		self.accept()
+
+class CompareDialog(QtWidgets.QDialog):
+	def __init__(self, caps: dict, parent=None):
+		super().__init__(parent)
+		self.setWindowTitle("Compare Plans")
+		self.setStyleSheet(f"background: {BG}; color: {FG};")
+		v = QtWidgets.QVBoxLayout(self)
+		lbl = QtWidgets.QLabel("Demo vs Premium")
+		lbl.setStyleSheet("font-weight:600; font-size: 14pt;")
+		v.addWidget(lbl)
+		pts = QtWidgets.QTextBrowser(); pts.setStyleSheet(f"background:{BG}; color:{FG}; border:0;")
+		pts.setHtml(
+			f"""
+			<ul>
+			<li>Context: Demo up to {caps.get('max_context',2048)} • Premium up to 8K+</li>
+			<li>Models: Demo 7B • Premium 13B/30B + specialized</li>
+			<li>GPU: Optional layers • Premium tuned builds</li>
+			<li>Tools: Demo basics • Premium RAG, batch, plugins</li>
+			</ul>
+			"""
+		)
+		v.addWidget(pts)
+		btn = QtWidgets.QPushButton("Upgrade →")
+		btn.setStyleSheet(f"background:{BRAND}; color:#0b100d; padding:10px 14px; border-radius:8px;")
+		btn.clicked.connect(self._open)
+		v.addWidget(btn, alignment=QtCore.Qt.AlignRight)
+	def _open(self):
+		QtGui.QDesktopServices.openUrl(QtCore.QUrl("https://kaankutluturk.github.io/verdant/"))
+		self.accept()
+
+class ModelManagerDialog(QtWidgets.QDialog):
+	def __init__(self, parent=None):
+		super().__init__(parent)
+		self.setWindowTitle("Model Manager")
+		self.setStyleSheet(f"background:{BG}; color:{FG};")
+		self.downloader = ModelDownloader()
+		self._build()
+		self._refresh()
+	def _build(self):
+		v = QtWidgets.QVBoxLayout(self)
+		self.table = QtWidgets.QTableWidget(0, 4)
+		self.table.setHorizontalHeaderLabels(["Key","Name","Status","Size"])
+		self.table.horizontalHeader().setStretchLastSection(True)
+		v.addWidget(self.table)
+		rowbtns = QtWidgets.QHBoxLayout()
+		self.btn_dl = QtWidgets.QPushButton("Download")
+		self.btn_del = QtWidgets.QPushButton("Delete")
+		self.btn_open = QtWidgets.QPushButton("Open Folder")
+		rowbtns.addWidget(self.btn_dl); rowbtns.addWidget(self.btn_del); rowbtns.addStretch(1); rowbtns.addWidget(self.btn_open)
+		v.addLayout(rowbtns)
+		self.btn_dl.clicked.connect(self._download)
+		self.btn_del.clicked.connect(self._delete)
+		self.btn_open.clicked.connect(self._open)
+	def _refresh(self):
+		from verdant import MODELS
+		self.table.setRowCount(0)
+		for key, m in MODELS.items():
+			row = self.table.rowCount(); self.table.insertRow(row)
+			self.table.setItem(row,0,QtWidgets.QTableWidgetItem(key))
+			self.table.setItem(row,1,QtWidgets.QTableWidgetItem(m.name))
+			mp = self.downloader.get_model_path(key)
+			status = "Present" if mp else "Missing"
+			size = f"{m.size_mb} MB"
+			self.table.setItem(row,2,QtWidgets.QTableWidgetItem(status))
+			self.table.setItem(row,3,QtWidgets.QTableWidgetItem(size))
+	def _selected_key(self) -> Optional[str]:
+		itm = self.table.item(self.table.currentRow(),0)
+		return itm.text() if itm else None
+	def _download(self):
+		key = self._selected_key();
+		if not key: return
+		self.parent().status_label.setText("Downloading…")
+		def task():
+			ok = self.downloader.download_model(key)
+			self.parent().status_label.setText("Download complete" if ok else "Download failed")
+			self._refresh()
+		QtCore.QTimer.singleShot(0, lambda: threading.Thread(target=task, daemon=True).start())
+	def _delete(self):
+		key = self._selected_key();
+		if not key: return
+		p = self.downloader.get_model_path(key)
+		if p and p.exists():
+			p.unlink(missing_ok=True)
+		self._refresh()
+	def _open(self):
+		QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(str(self.downloader.model_dir)))
+
 class MainWindow(QtWidgets.QMainWindow):
 	def __init__(self):
 		super().__init__()
@@ -169,6 +290,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.eco_saved_tokens = 0
 		self._build_ui()
 		self._maybe_show_onboarding()
+		self._init_recent_sessions()
 
 	def _build_ui(self):
 		central = QtWidgets.QWidget()
@@ -187,10 +309,29 @@ class MainWindow(QtWidgets.QMainWindow):
 		btn_bench.setText("⚡")
 		btn_bench.clicked.connect(self._on_bench)
 		header.addWidget(btn_bench)
-		btn_settings = QtWidgets.QToolButton()
-		btn_settings.setText("⚙")
+		btn_menu = QtWidgets.QToolButton(); btn_menu.setText("≡")
+		btn_menu.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+		self._menu = QtWidgets.QMenu(self)
+		self._menu.addAction("New chat", self._new_chat)
+		self._menu.addAction("Save chat (JSON)", self._save_chat)
+		self._menu.addAction("Load chat (JSON)", self._load_chat)
+		self._recent_menu = self._menu.addMenu("Recent…")
+		self._menu.addSeparator()
+		self._menu.addAction("Export Markdown", self._export_markdown)
+		self._menu.addAction("Export PDF", self._export_pdf)
+		self._menu.addSeparator()
+		self._menu.addAction("Templates", self._open_templates)
+		self._menu.addAction("Model Manager", self._open_model_manager)
+		self._menu.addAction("Compare plans", self._open_compare)
+		btn_menu.setMenu(self._menu)
+		header.addWidget(btn_menu)
+		btn_settings = QtWidgets.QToolButton(); btn_settings.setText("⚙")
 		btn_settings.clicked.connect(self._on_settings)
 		header.addWidget(btn_settings)
+		btn_upgrade = QtWidgets.QPushButton("★ Upgrade")
+		btn_upgrade.setStyleSheet(f"background:{BRAND}; color:#0b100d; padding:6px 10px; border-radius:6px;")
+		btn_upgrade.clicked.connect(lambda: QtGui.QDesktopServices.openUrl(QtCore.QUrl("https://kaankutluturk.github.io/verdant/")))
+		header.addWidget(btn_upgrade)
 		v.addLayout(header)
 		# Chat
 		self.chat = ChatView()
@@ -368,6 +509,108 @@ class MainWindow(QtWidgets.QMainWindow):
 			except Exception as e:
 				self.status_label.setText(f"Setup error: {e}")
 		threading.Thread(target=task, daemon=True).start()
+
+	def _init_recent_sessions(self):
+		self.sessions_dir = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "Verdant" / "sessions"
+		self.sessions_dir.mkdir(parents=True, exist_ok=True)
+		self._rebuild_recent_menu()
+	def _rebuild_recent_menu(self):
+		self._recent_menu.clear()
+		items = sorted(self.sessions_dir.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)[:10]
+		for p in items:
+			self._recent_menu.addAction(p.name, lambda pp=p: self._load_chat_path(pp))
+
+	def _new_chat(self):
+		self.chat = self.centralWidget().findChild(ChatView)
+		self.chat.v = QtWidgets.QVBoxLayout(self.chat.container)
+		self.chat.v.setContentsMargins(12,12,12,12)
+		self.chat.v.setSpacing(8)
+		self.chat.v.addStretch(1)
+		self.status_label.setText("New chat started")
+
+	def _save_chat(self):
+		path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save chat", str(self.sessions_dir / "chat.json"), "JSON (*.json)")
+		if not path: return
+		data = {"history": self._history(), "saved_at": QtCore.QDateTime.currentDateTime().toSecsSinceEpoch(), "version": "1.0"}
+		Path(path).write_text(QtCore.QJsonDocument(QtCore.QJsonObject()).toJson().data().decode("utf-8") if False else __import__("json").dumps(data, indent=2), encoding="utf-8")
+		self._rebuild_recent_menu(); self.status_label.setText("Chat saved")
+
+	def _load_chat(self):
+		path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Load chat", str(self.sessions_dir), "JSON (*.json)")
+		if path: self._load_chat_path(Path(path))
+	def _load_chat_path(self, path: Path):
+		try:
+			data = __import__("json").loads(path.read_text(encoding="utf-8"))
+			self._load_history(data.get("history", []))
+			self.status_label.setText(f"Loaded {path.name}")
+		except Exception as e:
+			self.status_label.setText(f"Load failed: {e}")
+
+	def _history(self):
+		# Extract chat bubbles to a list of role/content dicts
+		hist = []
+		for i in range(self.chat.v.count()-1):
+			item = self.chat.v.itemAt(i)
+			row = item.layout()
+			if not row: continue
+			w = row.itemAt(0).widget()
+			if not isinstance(w, Bubble): continue
+			label = w.findChild(QtWidgets.QLabel)
+			role = "assistant" if w.styleSheet().find(BUBBLE_ASSIST) != -1 else "user"
+			hist.append({"role": role, "content": label.text()})
+		return hist
+	def _load_history(self, hist):
+		# Clear and rebuild
+		self._new_chat()
+		for msg in hist:
+			self.chat.add_bubble(msg.get("content",""), sender=(msg.get("role") or "assistant"))
+
+	def _export_markdown(self):
+		path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Export Markdown", str(self.sessions_dir / "chat.md"), "Markdown (*.md)")
+		if not path: return
+		lines = []
+		for i in range(self.chat.v.count()-1):
+			row = self.chat.v.itemAt(i).layout();
+			if not row: continue
+			w = row.itemAt(0).widget();
+			if not isinstance(w, Bubble): continue
+			label = w.findChild(QtWidgets.QLabel)
+			role = "assistant" if w.styleSheet().find(BUBBLE_ASSIST) != -1 else "user"
+			lines.append(f"### {role.capitalize()}\n\n{label.text()}\n")
+		Path(path).write_text("\n".join(lines), encoding="utf-8")
+		self.status_label.setText("Exported Markdown")
+
+	def _export_pdf(self):
+		path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Export PDF", str(self.sessions_dir / "chat.pdf"), "PDF (*.pdf)")
+		if not path: return
+		doc = QtGui.QTextDocument()
+		html = ["<html><body style='background:#0F1214;color:#EAF2F6;font-family:Segoe UI;'>"]
+		for i in range(self.chat.v.count()-1):
+			row = self.chat.v.itemAt(i).layout();
+			if not row: continue
+			w = row.itemAt(0).widget();
+			if not isinstance(w, Bubble): continue
+			label = w.findChild(QtWidgets.QLabel)
+			role = "assistant" if w.styleSheet().find(BUBBLE_ASSIST) != -1 else "user"
+			html.append(f"<h3>{role.capitalize()}</h3><p>{QtGui.QTextDocument().toPlainText()}</p>")
+			html[-1] = f"<h3>{role.capitalize()}</h3><p>{QtGui.QTextDocument().toHtmlEscaped(label.text()) if hasattr(QtGui.QTextDocument,'toHtmlEscaped') else label.text()}</p>"
+		html.append("</body></html>")
+		doc.setHtml("".join(html))
+		printer = QtGui.QPdfWriter(path)
+		printer.setPageSize(QtGui.QPageSize(QtGui.QPageSize.A4))
+		doc.print_(printer)
+		self.status_label.setText("Exported PDF")
+
+	def _open_templates(self):
+		d = TemplatesDialog(self)
+		if d.exec() == QtWidgets.QDialog.Accepted and d.selected:
+			self.prefs["active_preset"] = d.selected
+			UserPreferences.save(self.prefs, self.prefs_path)
+			self.status_label.setText(f"Selected template: {d.selected}")
+	def _open_model_manager(self):
+		ModelManagerDialog(self).exec()
+	def _open_compare(self):
+		CompareDialog(self.caps, self).exec()
 
 
 def main():
