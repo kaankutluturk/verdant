@@ -267,24 +267,24 @@ class VerdantGUI:
         main.columnconfigure(0, weight=1)
 
         header = tb.Frame(main)
-        header.grid(row=0, column=0, sticky="ew", padx=16, pady=(12, 4))
-        self.status_label = tb.Label(header, textvariable=self.status_var, bootstyle=SECONDARY)
-        self.status_label.pack(side="left")
-        settings_btn = tb.Button(header, text="⚙", bootstyle=LINK, width=3, command=self._open_settings)
-        settings_btn.pack(side="right")
-        self._add_tooltip(settings_btn, "Settings")
-        about_btn = tb.Button(header, text="ℹ", bootstyle=LINK, width=3, command=self._open_about)
-        about_btn.pack(side="right")
-        self._add_tooltip(about_btn, "About Verdant")
-        # Minimal eco meter label
-        eco_lbl = tb.Label(header, textvariable=self.eco_savings_var, bootstyle=SUCCESS)
-        eco_lbl.pack(side="right", padx=(8,8))
-        bench_btn = tb.Button(header, text="⚡", bootstyle=LINK, width=3, command=self._run_benchmark)
-        bench_btn.pack(side="right")
-        self._add_tooltip(bench_btn, "Run benchmark")
-        self.setup_prog = tb.Progressbar(header, maximum=100, variable=self.download_progress, length=180, bootstyle=SUCCESS)
-        self.setup_prog.pack(side="right", padx=(8,0))
-        self.setup_prog.pack_forget()
+		header.grid(row=0, column=0, sticky="ew", padx=16, pady=(12, 4))
+		self.status_label = tb.Label(header, textvariable=self.status_var, bootstyle=SECONDARY)
+		self.status_label.pack(side="left")
+		# Eco meter on left to ensure visibility in narrow headers
+		eco_lbl = tb.Label(header, textvariable=self.eco_savings_var, bootstyle=SUCCESS)
+		eco_lbl.pack(side="left", padx=(12,0))
+		bench_btn = tb.Button(header, text="⚡", bootstyle=LINK, width=3, command=self._run_benchmark)
+		bench_btn.pack(side="right")
+		self._add_tooltip(bench_btn, "Run benchmark")
+		settings_btn = tb.Button(header, text="⚙", bootstyle=LINK, width=3, command=self._open_settings)
+		settings_btn.pack(side="right")
+		self._add_tooltip(settings_btn, "Settings")
+		about_btn = tb.Button(header, text="ℹ", bootstyle=LINK, width=3, command=self._open_about)
+		about_btn.pack(side="right")
+		self._add_tooltip(about_btn, "About Verdant")
+		self.setup_prog = tb.Progressbar(header, maximum=100, variable=self.download_progress, length=180, bootstyle=SUCCESS)
+		self.setup_prog.pack(side="right", padx=(8,0))
+		self.setup_prog.pack_forget()
         self.stop_btn = tb.Button(header, text="Stop", bootstyle=SECONDARY, command=self._on_stop)
         self.stop_btn.pack(side="right", padx=(8,8))
         self.stop_btn.pack_forget()
@@ -1074,9 +1074,9 @@ class _Tooltip:
 
 
 def main():
-    root = tk.Tk()
-    VerdantGUI(root)
-    root.mainloop()
+	root = tb.Window(themename="darkly")
+	VerdantGUI(root)
+	root.mainloop()
 
 
 if __name__ == "__main__":
