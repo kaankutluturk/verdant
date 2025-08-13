@@ -345,12 +345,13 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.status = self.statusBar()
 		self.status.setStyleSheet(f"color: {FG};")
 		self.eco_saved_tokens = 0
-		self._build_ui()
-		self._maybe_show_onboarding()
-		self._init_recent_sessions()
 		self._worker_thread = None
 		self._worker = None
 		self._toast = None
+		# Initialize sessions dir before UI to avoid early access
+		self._init_recent_sessions()
+		self._build_ui()
+		self._maybe_show_onboarding()
 
 	def _build_ui(self):
 		central = QtWidgets.QWidget(); self.setCentralWidget(central)
@@ -597,7 +598,7 @@ class MainWindow(QtWidgets.QMainWindow):
 	def _init_recent_sessions(self):
 		self.sessions_dir = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "Verdant" / "sessions"
 		self.sessions_dir.mkdir(parents=True, exist_ok=True)
-		self._rebuild_recent_menu()
+
 	def _rebuild_recent_menu(self):
 		self._recent_menu.clear()
 		items = sorted(self.sessions_dir.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)[:10]
@@ -707,6 +708,9 @@ class MainWindow(QtWidgets.QMainWindow):
 		self._toast.show(); QtCore.QTimer.singleShot(2000, self._toast.close)
 
 	def _rebuild_chat_list(self):
+		# Guard to ensure sessions_dir exists
+		if not hasattr(self, "sessions_dir"):
+			self._init_recent_sessions()
 		self.chat_list.clear()
 		items = sorted(self.sessions_dir.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)[:30]
 		for p in items:
