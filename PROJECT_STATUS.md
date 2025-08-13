@@ -11,6 +11,7 @@
 3. ✅ **Core CLI interface with interactive mode** - IMPLEMENTED
 4. ✅ **One-time model download with validation** - IMPLEMENTED
 5. ✅ **Cross-platform support** - IMPLEMENTED
+6. ✅ **Desktop GUI (Tk + ttkbootstrap)** - IMPLEMENTED
 
 > **💡 Environmental Note**: See [README.md](README.md) for details on Verdant's eco-conscious benefits and environmental impact.
 
@@ -41,6 +42,7 @@
 - **Interactive**: Chat-like session management
 - **Commands**: Setup, interactive, prompt, help
 - **Cross-platform**: Windows, macOS, Linux support
+- **GUI**: Modern dark UI, chat, streaming, Stop/Regenerate, presets, sample prompts, session save/load, benchmark, eco meter, onboarding, About dialog
 
 ### **Performance Tiers**
 
@@ -55,21 +57,15 @@
 ```
 verdant/
 ├── verdant.py              # Main application (MVP)
+├── verdant_gui.py          # Desktop GUI
+├── verdant_app.py          # App launcher (GUI/CLI)
 ├── test_verdant.py         # Test suite
-├── demo.py                 # Feature demonstration
+├── examples/               # Usage examples
 ├── requirements.txt        # Python dependencies
-├── README.md              # Project overview and environmental benefits
-├── USAGE_GUIDE.md         # Usage instructions and examples
-├── PROJECT_STATUS.md      # This technical status document
-├── LICENSE                # MIT License
-├── .gitignore            # Git ignore rules
-├── install_and_test.ps1  # Windows PowerShell installation
-├── install_and_test.bat  # Windows batch installation
-├── setup_github.ps1      # GitHub setup script
-├── setup_github.bat      # GitHub setup batch file
-├── examples/              # Usage examples
-├── docs/                  # Additional documentation
-└── .github/               # GitHub-specific files
+├── README.md               # Project overview and benefits
+├── USAGE_GUIDE.md          # Usage instructions and examples
+├── PROJECT_STATUS.md       # This technical status document
+└── installer/              # Windows installer scripts
 ```
 
 ## 🔧 **Implementation Details**
@@ -79,7 +75,6 @@ verdant/
 def get_performance_tier():
     ram_gb = get_memory_gb()
     cpu_cores = get_cpu_count()
-    
     if ram_gb >= 16 and cpu_cores >= 8:
         return "high"
     elif ram_gb >= 8 and cpu_cores >= 4:
@@ -118,12 +113,13 @@ def optimize_for_tier(tier: str):
 - ✅ Model download and validation
 - ✅ Performance tier classification
 - ✅ CLI interface functionality
+- ✅ GUI smoke checks
 - ✅ Cross-platform compatibility
 
 ### **Validation Methods**
 - **Checksum**: SHA256 file integrity verification
 - **Size Check**: File size validation against expected
-- **Performance**: Real-world speed testing
+- **Performance**: Real-world speed testing and benchmark
 - **Memory**: RAM usage monitoring
 - **Compatibility**: Multi-platform testing
 
@@ -136,12 +132,14 @@ def optimize_for_tier(tier: str):
 - [x] Model management
 - [x] Cross-platform support
 
-### **Phase 2: User Experience (4 weeks)**
-- [ ] GUI interface (tkinter/Qt)
-- [ ] Preset templates
-- [ ] Performance benchmarking
-- [ ] User preferences
-- [ ] Session management
+### **Phase 2: User Experience (ongoing)**
+- [x] GUI interface (tkinter/ttkbootstrap)
+- [x] Preset templates in GUI
+- [x] Performance benchmarking in GUI
+- [x] User preferences for generation controls
+- [x] Session management (save/load)
+- [x] Onboarding flow and About dialog
+- [x] Instant demo mode (no download)
 
 ### **Phase 3: Advanced Features (2-3 months)**
 - [ ] Document processing
@@ -174,7 +172,7 @@ def optimize_for_tier(tier: str):
 
 ### **Current Limitations**
 1. **Single Model**: Only Mistral 7B supported
-2. **Context Size**: Limited by available RAM
+2. **Context Size**: Limited by available RAM and demo cap
 3. **GPU Support**: CPU-only inference
 4. **Model Switching**: No runtime model changes
 
@@ -185,44 +183,12 @@ def optimize_for_tier(tier: str):
 
 ## 🔮 **Future Vision**
 
-### **Long-term Goals**
-- **Eco-Leadership**: Set industry standard for green AI
+- **Eco‑Leadership**: Set industry standard for green AI
 - **Performance**: Match cloud AI speed with local efficiency
 - **Accessibility**: Make eco-conscious AI available to everyone
-- **Innovation**: Pioneer sustainable AI development practices
-
-### **Technology Evolution**
-- **Models**: Larger, more efficient local models
-- **Hardware**: Better optimization for various devices
 - **Integration**: Seamless workflow integration
-- **Collaboration**: Open ecosystem for sustainable AI
-
-## 📈 **Success Metrics**
-
-### **Technical Success**
-- ✅ MVP functionality working
-- ✅ Performance optimization implemented
-- ✅ Cross-platform compatibility achieved
-- ✅ User experience streamlined
-
-### **Environmental Success**
-- ✅ 95% energy reduction vs cloud AI
-- ✅ Zero carbon emissions after setup
-- ✅ Sustainable technology demonstration
-- ✅ Eco-conscious user base growth
+- **Open**: Sustainable AI ecosystem
 
 ---
 
-## 🏆 **Conclusion**
-
-**Verdant has successfully evolved from a skeleton project to a fully functional MVP that delivers on all its core promises:**
-
-1. ✅ **Local inference with Mistral 7B (quantized)** - IMPLEMENTED
-2. ✅ **Auto hardware detection and optimization** - IMPLEMENTED  
-3. ✅ **CLI interface with interactive mode** - IMPLEMENTED
-4. ✅ **One-time model download with validation** - IMPLEMENTED
-5. ✅ **Cross-platform support** - IMPLEMENTED
-
-**The MVP is now ready for real-world use and provides a solid foundation for the eco-conscious AI movement.**
-
-**The future of AI is green, and Verdant is leading the way. 🌱** 
+**The MVP is ready for real-world use. The demo now provides immediate value (instant demo) and a smooth first‑run experience (onboarding, presets, benchmark, session save/load).** 

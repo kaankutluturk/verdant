@@ -58,9 +58,12 @@ Verdant is the world's first eco-conscious AI assistant that runs entirely on yo
 - Performance tier classification (High/Medium/Low)
 
 **User Interface:**
-- Command-line interface with interactive mode
-- Single prompt processing for scripts
-- Cross-platform support (Windows, macOS, Linux)
+- Modern GUI with chat, streaming, Stop/Regenerate
+- Preset quick actions and sample prompts
+- Save/Load sessions (JSON), Export transcript, Copy all
+- Built-in Benchmark (tok/s), Eco meter estimate
+- Onboarding flow, About dialog
+- Command-line interface also available
 
 ## Quick Start (manual install)
 
@@ -74,7 +77,10 @@ python test_verdant.py
 # 3. Download model (one-time, ~4GB)
 python verdant.py --setup
 
-# 4. Start using
+# 4. Start GUI
+python verdant_app.py
+
+# Or start CLI
 python verdant.py --interactive
 ```
 
@@ -112,19 +118,21 @@ python verdant.py --setup
 
 ## Usage
 
-### Interactive Mode
+### GUI
+```bash
+python verdant_app.py
+```
+- Settings: adjust Temperature, Top‑p, and Context (demo cap enforced)
+- Presets: Paraphrase, Grammar fix, Summarize, Citation
+- Benchmark: quick tok/s check
+- Instant Demo: try without model download
+
+### CLI
 ```bash
 python verdant.py --interactive
-```
-
-### Single Prompt
-```bash
 python verdant.py --prompt "Your question here"
-```
-
-### Performance Tuning
-```bash
-python verdant.py --threads 8 --context 4096
+python verdant.py --preset paraphrase_academic --prompt "Improve this paragraph: ..."
+python verdant.py --benchmark --benchmark-runs 1
 ```
 
 ## Architecture
@@ -132,7 +140,7 @@ python verdant.py --threads 8 --context 4096
 ```
 ┌─────────────┐    ┌──────────────┐    ┌─────────────┐
 │   User      │───▶│  Verdant Core │───▶│  Mistral    │
-│  (CLI)      │    │  (Hardware   │    │  7B-Q4     │
+│  (GUI/CLI)  │    │  (Hardware   │    │  7B-Q4     │
 │             │    │   Detection) │    │  (llama.cpp)│
 └─────────────┘    └──────────────┘    └─────────────┘
 ```
@@ -141,7 +149,7 @@ python verdant.py --threads 8 --context 4096
 - **Model**: Mistral 7B Instruct (4-bit quantized, 3.8GB)
 - **Engine**: llama.cpp (optimized C++ implementation)
 - **Detection**: Python psutil + platform detection
-- **Interface**: Python CLI
+- **Interface**: Python GUI + CLI
 
 ## 🌱 Environmental Impact
 
@@ -172,10 +180,11 @@ python verdant.py --threads 8 --context 4096
 - Hardware optimization
 - Model management
 
-### Phase 2: User Experience (4 weeks)
-- GUI interface
-- Preset templates
-- Performance benchmarking
+### Phase 2: User Experience (in progress)
+- GUI interface with onboarding and About dialog
+- Preset templates and sample prompts
+- Performance benchmarking and eco meter
+- User preferences and session management
 
 ### Phase 3: Advanced Features (2-3 months)
 - Document processing
@@ -208,7 +217,7 @@ We welcome contributions:
 ### Recommended
 - RAM: 16GB+
 - CPU: 8+ cores
-- Storage: 10GB+ free space
+- Storage: 10GB+
 - Storage Type: SSD preferred
 
 ## Troubleshooting
@@ -216,8 +225,8 @@ We welcome contributions:
 | Problem | Solution |
 |---------|----------|
 | "llama-cpp-python not installed" | `pip install llama-cpp-python` |
-| "Model not found" | `python verdant.py --setup` |
-| Slow performance | Close other applications |
+| "Model not found" | Run Setup in GUI or `python verdant.py --setup` |
+| Slow performance | Close other applications; reduce Context/Temperature |
 
 ## License
 
@@ -229,12 +238,11 @@ We welcome contributions:
 
 ## Get the Full Experience
 
-This GitHub version is a demo with basic features. For the complete Verdant experience:
+This GitHub version is a demo with basic features.
 
-- Full performance with maximum context
-- Advanced models (13B, 30B, specialized)
-- Professional tools (GUI, batch processing, plugins)
-- Premium support and updates
+- Instant Demo for first‑time experience
+- Full local performance after one-time download
+- Roadmap: larger models, GPU, and pro tools
 
 **Download for Windows**: https://github.com/kaankutluturk/verdant/releases/latest/download/VerdantApp.exe
 

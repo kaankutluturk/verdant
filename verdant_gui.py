@@ -4,10 +4,12 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import StringVar, filedialog
 import tkinter.font as tkfont
+import tkinter.ttk as ttk
 import sys
 import platform
 import ctypes
 from pathlib import Path
+import json
 
 # Use ttkbootstrap for modern theming
 import ttkbootstrap as tb
@@ -20,12 +22,13 @@ from verdant import (
     AIInference,
     get_capabilities,
 )
+from verdant import PresetsManager, run_benchmark
 
-APP_TITLE = "Verdant Demo"
+APP_TITLE = "Verdant"
 
 # Premium dark palette accents
-ACCENT_BRAND = "#5BD174"
-ACCENT_ALT = "#2AA198"
+ACCENT_BRAND = "#1DB954"
+ACCENT_ALT = "#179E4B"
 
 class VerdantGUI:
     def __init__(self, root: tk.Tk):
@@ -64,12 +67,30 @@ class VerdantGUI:
         self._last_user_prompt = ""
         self._is_regen = False
         self.chat_history = []  # list of {role: 'user'|'assistant', content: str}
+        # New state
+        self._active_preset = None
+        self.temp_var = tk.DoubleVar(value=float(self.prefs.get("temperature", 0.7)))
+        self.top_p_var = tk.DoubleVar(value=float(self.prefs.get("top_p", 0.9)))
+        self.ctx_var = tk.IntVar(value=int(self.prefs.get("context", self.caps.get("max_context", 2048))))
+        self.instant_demo_var = tk.BooleanVar(value=bool(self.prefs.get("instant_demo", True)))
+        self.eco_savings_var = StringVar(value="🌿 0.00 Wh")
+        self._eco_tokens_est = 0
+        # Download metrics
+        self._dl_last_bytes = 0
+        self._dl_last_time = 0.0
+        self._dl_total_bytes = 0
 
         self._set_process_dpi_awareness()
         self._set_app_icon()
         self._set_app_user_model_id()
         self._apply_theme()
         self._build_ui()
+        # Maybe show onboarding on first launch if no model
+        try:
+            if not ModelDownloader().get_model_path(self.model_key.get() or "mistral-7b-q4") and not self.prefs.get("onboarded", False):
+                self._open_onboarding()
+        except Exception:
+            pass
 
     def _set_process_dpi_awareness(self):
         if platform.system() != "Windows":
@@ -199,11 +220,24 @@ class VerdantGUI:
         tb.Button(sidebar, text="⊕  New chat", bootstyle=SUCCESS, command=self._new_chat).pack(fill="x", padx=16, pady=(6, 6))
         tb.Button(sidebar, text="⤓  Export chat", bootstyle=SECONDARY, command=self._export_chat).pack(fill="x", padx=16, pady=(0, 6))
         tb.Button(sidebar, text="⧉  Copy all", bootstyle=SECONDARY, command=self._copy_all).pack(fill="x", padx=16, pady=(0, 6))
-
+        tb.Button(sidebar, text="💾  Save chat", bootstyle=SECONDARY, command=self._save_chat_json).pack(fill="x", padx=16, pady=(0, 6))
+        tb.Button(sidebar, text="📥  Load chat", bootstyle=SECONDARY, command=self._load_chat_json).pack(fill="x", padx=16, pady=(0, 6))
+        # Preset quick actions
         tb.Separator(sidebar, orient="horizontal").pack(fill="x", padx=16, pady=(8, 8))
-        badge = tb.Label(sidebar, text="Personal use • One‑time", bootstyle=SUCCESS)
-        badge.pack(anchor="w", padx=16)
-        tb.Label(sidebar, text="100% Local", bootstyle=SUCCESS).pack(anchor="w", padx=16, pady=(6,0))
+        tb.Label(sidebar, text="Academic presets", bootstyle=SECONDARY).pack(anchor="w", padx=16)
+        tb.Button(sidebar, text="Paraphrase", bootstyle=SECONDARY, command=lambda: self._select_preset("paraphrase_academic")).pack(fill="x", padx=16, pady=(6, 4))
+        tb.Button(sidebar, text="Grammar fix", bootstyle=SECONDARY, command=lambda: self._select_preset("grammar_fix")).pack(fill="x", padx=16, pady=(0, 4))
+        tb.Button(sidebar, text="Summarize", bootstyle=SECONDARY, command=lambda: self._select_preset("concise_summary")).pack(fill="x", padx=16, pady=(0, 4))
+        tb.Button(sidebar, text="Citation help", bootstyle=SECONDARY, command=lambda: self._select_preset("citation_check")).pack(fill="x", padx=16, pady=(0, 8))
+        # Sample prompts
+        tb.Label(sidebar, text="Sample prompts", bootstyle=SECONDARY).pack(anchor="w", padx=16)
+        for txt in [
+            "Paraphrase: Social media affects students badly.",
+            "Fix grammar: There going to the libary tommorow.",
+            "Summarize: Paste a paragraph here.",
+            "Citations: Convert these refs to APA: ...",
+        ]:
+            tb.Button(sidebar, text=txt, bootstyle=LINK, command=lambda t=txt: self._insert_prompt(t)).pack(fill="x", padx=16, pady=(0, 2))
 
         main = tb.Frame(self.root)
         main.grid(row=0, column=1, sticky="nsew")
@@ -217,6 +251,15 @@ class VerdantGUI:
         settings_btn = tb.Button(header, text="⚙", bootstyle=LINK, width=3, command=self._open_settings)
         settings_btn.pack(side="right")
         self._add_tooltip(settings_btn, "Settings")
+        about_btn = tb.Button(header, text="ℹ", bootstyle=LINK, width=3, command=self._open_about)
+        about_btn.pack(side="right")
+        self._add_tooltip(about_btn, "About Verdant")
+        # Minimal eco meter label
+        eco_lbl = tb.Label(header, textvariable=self.eco_savings_var, bootstyle=SUCCESS)
+        eco_lbl.pack(side="right", padx=(8,8))
+        bench_btn = tb.Button(header, text="⚡", bootstyle=LINK, width=3, command=self._run_benchmark)
+        bench_btn.pack(side="right")
+        self._add_tooltip(bench_btn, "Run benchmark")
         self.setup_prog = tb.Progressbar(header, maximum=100, variable=self.download_progress, length=180, bootstyle=SUCCESS)
         self.setup_prog.pack(side="right", padx=(8,0))
         self.setup_prog.pack_forget()
@@ -261,7 +304,7 @@ class VerdantGUI:
 
         tb.Label(input_wrap, textvariable=self.char_count_var, bootstyle=SECONDARY).grid(row=1, column=0, sticky="e", pady=(4,0))
 
-        self._add_system_note("Welcome to Verdant Demo — eco‑conscious local AI. Use Settings → Run Setup to download the model.")
+        self._add_system_note("Welcome to Verdant Demo — eco‑conscious local AI. Use Settings → Run Setup to download the model, or try instant demo in Settings.")
         try:
             self.input_text.focus_set()
         except Exception:
@@ -293,16 +336,15 @@ class VerdantGUI:
         inner = tb.Frame(row)
         if sender == "user":
             inner.pack(anchor="e", padx=6)
-            bg = "#1D242A"
+            bg = "#13181C"
         elif sender == "assistant":
             inner.pack(anchor="w", padx=6)
-            bg = "#0F2B1A"
+            bg = "#0E2518"
         else:
             inner.pack(anchor="center", padx=6)
             bg = c
         import datetime as _dt
         ts = _dt.datetime.now().strftime("%H:%M")
-        ttk.Label(inner, text=ts, style="Muted.TLabel").pack(anchor=("w" if sender != "user" else "e"))
         bubble_row = tb.Frame(inner)
         bubble_row.pack(fill="x")
         canvas = tk.Canvas(bubble_row, bg=c, highlightthickness=0, bd=0, width=860, height=10)
@@ -355,6 +397,15 @@ class VerdantGUI:
         prompt = self.input_text.get("1.0", "end").strip()
         if not prompt or prompt.startswith("Message Verdant…"):
             return
+        # Apply preset if any
+        try:
+            if self._active_preset:
+                presets = PresetsManager.load_presets()
+                ptext = presets.get(self._active_preset)
+                if ptext:
+                    prompt = f"{ptext}\n\n{prompt}"
+        except Exception:
+            pass
         self.input_text.delete("1.0", "end")
         self._update_char_count()
         self._add_bubble(prompt, sender="user")
@@ -419,6 +470,24 @@ class VerdantGUI:
         frame.pack(fill="both", expand=True)
         tb.Label(frame, text="Model").pack(anchor="w")
         tb.Combobox(frame, textvariable=self.model_key, values=["mistral-7b-q4"], state="readonly").pack(fill="x", pady=(0, 12))
+        # Controls
+        ctrls = tb.Labelframe(frame, text="Generation controls")
+        ctrls.pack(fill="x", pady=(8,8))
+        tb.Label(ctrls, text=f"Temperature: {self.temp_var.get():.2f}").pack(anchor="w")
+        temp_scale = tb.Scale(ctrls, from_=0.0, to=1.2, orient="horizontal", value=self.temp_var.get(), command=lambda v: self.temp_var.set(float(v)))
+        temp_scale.pack(fill="x")
+        tb.Label(ctrls, text=f"Top‑p: {self.top_p_var.get():.2f}").pack(anchor="w", pady=(6,0))
+        top_p_scale = tb.Scale(ctrls, from_=0.1, to=1.0, orient="horizontal", value=self.top_p_var.get(), command=lambda v: self.top_p_var.set(float(v)))
+        top_p_scale.pack(fill="x")
+        max_ctx = int(self.caps.get("max_context", 2048))
+        tb.Label(ctrls, text=f"Context: {self.ctx_var.get()} (max {max_ctx})").pack(anchor="w", pady=(6,0))
+        ctx_scale = tb.Scale(ctrls, from_=256, to=max_ctx, orient="horizontal", value=self.ctx_var.get(), command=lambda v: self.ctx_var.set(int(float(v))))
+        ctx_scale.pack(fill="x")
+        # Instant demo toggle
+        opt = tb.Labelframe(frame, text="Demo options")
+        opt.pack(fill="x", pady=(8,8))
+        inst = tb.Checkbutton(opt, text="Enable instant demo (no download)", variable=self.instant_demo_var, bootstyle=SECONDARY)
+        inst.pack(anchor="w")
         # System status
         try:
             info = HardwareDetector.get_system_info()
@@ -445,6 +514,11 @@ class VerdantGUI:
     def on_save_prefs(self):
         prefs = {
             "model": self.model_key.get() or "mistral-7b-q4",
+            "temperature": float(self.temp_var.get()),
+            "top_p": float(self.top_p_var.get()),
+            "context": int(self.ctx_var.get()),
+            "instant_demo": bool(self.instant_demo_var.get()),
+            "onboarded": True,
         }
         UserPreferences.save(prefs, self.prefs_path)
         self.status_var.set("Preferences saved")
@@ -452,6 +526,10 @@ class VerdantGUI:
     def on_load_prefs(self):
         self.prefs = UserPreferences.load(self.prefs_path)
         self.model_key.set(self.prefs.get("model", "mistral-7b-q4"))
+        self.temp_var.set(float(self.prefs.get("temperature", 0.7)))
+        self.top_p_var.set(float(self.prefs.get("top_p", 0.9)))
+        self.ctx_var.set(int(self.prefs.get("context", self.caps.get("max_context", 2048))))
+        self.instant_demo_var.set(bool(self.prefs.get("instant_demo", True)))
         self.status_var.set("Preferences loaded")
 
     def on_setup(self):
@@ -471,6 +549,10 @@ class VerdantGUI:
             dl = ModelDownloader()
             if dl.get_model_path(model):
                 self.root.after(0, self._run_generate_async, prompt)
+                return
+            # Instant demo path
+            if self.instant_demo_var.get():
+                self.root.after(0, self._run_demo_generate_async, prompt)
                 return
             try:
                 if not HardwareDetector.check_requirements(model):
@@ -511,10 +593,27 @@ class VerdantGUI:
                 except Exception:
                     pass
                 self._disable_send(False)
+                self._dl_last_bytes = 0
+                self._dl_last_time = 0.0
+                self._dl_total_bytes = 0
         threading.Thread(target=task, daemon=True).start()
 
     def _on_download_progress(self, percent: float, downloaded: int, total: int):
         try:
+            self._dl_total_bytes = total
+            import time as _t
+            now = _t.time()
+            bps = 0.0
+            if self._dl_last_time:
+                elapsed = max(1e-3, now - self._dl_last_time)
+                bps = max(0.0, (downloaded - self._dl_last_bytes) / elapsed)
+            self._dl_last_bytes = downloaded
+            self._dl_last_time = now
+            mbps = bps / (1024*1024)
+            eta_s = int(((total - downloaded) / bps)) if bps > 0 else 0
+            mm = eta_s // 60
+            ss = eta_s % 60
+            self.status_var.set(f"Downloading… {percent:.1f}% • {downloaded/(1024*1024):.1f}/{total/(1024*1024):.1f} MB • {mbps:.2f} MB/s • ETA {mm:02d}:{ss:02d}")
             self.root.after(0, lambda: self.download_progress.set(percent))
         except Exception:
             pass
@@ -526,9 +625,9 @@ class VerdantGUI:
                 dl = ModelDownloader()
                 model_path = dl.get_model_path(ctx_model)
                 if not model_path:
-                    self._set_status("Model not found — run Setup first")
+                    self._set_status("Model not found — run Setup or enable instant demo")
                     return
-                ai = AIInference(model_path)
+                ai = AIInference(model_path, n_ctx=int(self.ctx_var.get()), n_threads=None, temperature=float(self.temp_var.get()), top_p=float(self.top_p_var.get()))
                 # Build multi-turn prompt with system instruction and short history
                 full_prompt = self._build_multiturn_prompt()
                 accum = []
@@ -545,6 +644,14 @@ class VerdantGUI:
                     self.root.after(0, append_chunk, chunk)
                 # On finish, update history (replace last assistant on regen)
                 final_text = "".join(accum)
+                # Update eco meter (very rough estimate: 1 word ~ 1 token, 1e-4 Wh/token saved)
+                try:
+                    tokens_est = max(1, len(final_text.split()))
+                    self._eco_tokens_est += tokens_est
+                    saved_wh = self._eco_tokens_est * 1e-4 * 0.95
+                    self.eco_savings_var.set(f"🌿 {saved_wh:.2f} Wh")
+                except Exception:
+                    pass
                 if not self._stop_requested:
                     if self._is_regen:
                         # Replace last assistant entry if exists
@@ -557,6 +664,46 @@ class VerdantGUI:
                 self._set_status("Done")
             except Exception as e:
                 self._add_system_note(f"❌ Error: {e}")
+                self._set_status("Error")
+            finally:
+                self.is_generating = False
+                self._disable_send(False)
+                self._stop_typing_indicator()
+                try:
+                    self.stop_btn.pack_forget()
+                    self._is_regen = False
+                except Exception:
+                    pass
+        threading.Thread(target=task, daemon=True).start()
+
+    def _run_demo_generate_async(self, prompt: str):
+        def task():
+            try:
+                # Simulate streaming canned response for instant demo
+                preset_text = None
+                try:
+                    presets = PresetsManager.load_presets()
+                    if self._active_preset and self._active_preset in presets:
+                        preset_text = presets[self._active_preset]
+                except Exception:
+                    pass
+                intro = "This is instant demo mode (no model download)."
+                body = "\n" + (preset_text + "\n\n" if preset_text else "") + "Here is a helpful response to your prompt: " + prompt[:200]
+                chunks = [intro + "\n", body, "\n\nUpgrade to full model for higher quality responses."]
+                for ch in chunks:
+                    if self.current_assistant_label:
+                        cur = self.current_assistant_label.cget("text")
+                        self.current_assistant_label.configure(text=cur + ch)
+                        self._update_bubble_layout_for_label(self.current_assistant_label)
+                        self._scroll_to_bottom()
+                        import time as _t; _t.sleep(0.2)
+                # Update eco meter modestly
+                self._eco_tokens_est += 80
+                saved_wh = self._eco_tokens_est * 1e-4 * 0.95
+                self.eco_savings_var.set(f"🌿 {saved_wh:.2f} Wh")
+                self._set_status("Done (demo)")
+            except Exception as e:
+                self._add_system_note(f"❌ Demo error: {e}")
                 self._set_status("Error")
             finally:
                 self.is_generating = False
@@ -764,6 +911,104 @@ class VerdantGUI:
             # already captured in turns with [INST], no assistant following yet
             pass
         return "".join(turns)
+
+    def _select_preset(self, name: str):
+        self._active_preset = name
+        self._set_status(f"Preset selected: {name}")
+
+    def _insert_prompt(self, text: str):
+        try:
+            self.input_text.delete("1.0", "end")
+            self.input_text.insert("1.0", text)
+            self.input_text.focus_set()
+        except Exception:
+            pass
+
+    def _open_onboarding(self):
+        dlg = tk.Toplevel(self.root)
+        dlg.title("Welcome to Verdant")
+        dlg.transient(self.root)
+        dlg.grab_set()
+        dlg.geometry("520x360")
+        frm = tb.Frame(dlg, padding=12)
+        frm.pack(fill="both", expand=True)
+        tb.Label(frm, text="Get started in 3 steps", font=("Segoe UI Semibold", 12)).pack(anchor="w")
+        steps = (
+            "1) Check your hardware",
+            "2) Download the model (~3.8GB, one‑time)",
+            "3) Chat locally — or try instant demo first",
+        )
+        for s in steps:
+            tb.Label(frm, text=s).pack(anchor="w", pady=(2,0))
+        btns = tb.Frame(frm)
+        btns.pack(fill="x", pady=(12,0))
+        tb.Button(btns, text="Run Setup", bootstyle=SUCCESS, command=lambda: (dlg.destroy(), self.on_setup())).pack(side="left")
+        tb.Button(btns, text="Try instant demo", bootstyle=SECONDARY, command=lambda: (self.instant_demo_var.set(True), self._set_status("Instant demo enabled"), dlg.destroy())).pack(side="left", padx=8)
+        tb.Button(btns, text="Skip", bootstyle=LINK, command=lambda: (dlg.destroy())).pack(side="right")
+        # Mark as onboarded on close
+        def _mark(_e=None):
+            p = UserPreferences.load(self.prefs_path)
+            p["onboarded"] = True
+            UserPreferences.save(p, self.prefs_path)
+        dlg.protocol("WM_DELETE_WINDOW", lambda: (_mark(), dlg.destroy()))
+
+    def _run_benchmark(self):
+        if self.is_generating:
+            return
+        def task():
+            try:
+                model = self.model_key.get() or "mistral-7b-q4"
+                dl = ModelDownloader()
+                mp = dl.get_model_path(model)
+                if not mp:
+                    self._set_status("Model not found — run Setup")
+                    return
+                ai = AIInference(mp, n_ctx=int(self.ctx_var.get()))
+                run_benchmark(ai, runs=1)
+                self._set_status("Benchmark complete")
+            except Exception as e:
+                self._set_status(f"Benchmark error: {e}")
+        threading.Thread(target=task, daemon=True).start()
+
+    def _open_about(self):
+        try:
+            base = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
+            ver = (base / "version.txt").read_text(encoding="utf-8").strip() if (base / "version.txt").exists() else "v0.0.0"
+            chan = (base / "channel.txt").read_text(encoding="utf-8").strip() if (base / "channel.txt").exists() else "demo"
+            messagebox.showinfo("About Verdant", f"Verdant Demo\nVersion: {ver}\nChannel: {chan}\n\n100% local. 95% less energy than cloud AI.")
+        except Exception:
+            pass
+
+    def _save_chat_json(self):
+        try:
+            path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON", "*.json"), ("All Files", "*.*")], title="Save chat as JSON")
+            if not path:
+                return
+            data = {"history": self.chat_history, "saved_at": __import__("time").time(), "version": "1.0"}
+            Path(path).write_text(json.dumps(data, indent=2), encoding="utf-8")
+            self._set_status("Chat saved")
+        except Exception as e:
+            messagebox.showerror("Save failed", str(e))
+            self._set_status("Save failed")
+
+    def _load_chat_json(self):
+        try:
+            path = filedialog.askopenfilename(filetypes=[["JSON", "*.json"], ["All Files", "*.*"]], title="Load chat JSON")
+            if not path:
+                return
+            data = json.loads(Path(path).read_text(encoding="utf-8"))
+            self.chat_history = data.get("history", [])
+            # Repaint bubbles from history
+            for row, _, _ in list(self.chat_bubbles):
+                try: row.destroy()
+                except Exception: pass
+            self.chat_bubbles.clear()
+            for msg in self.chat_history:
+                self._add_bubble(msg.get("content", ""), sender=("user" if msg.get("role") == "user" else "assistant"))
+            self._set_status("Chat loaded")
+        except Exception as e:
+            messagebox.showerror("Load failed", str(e))
+            self._set_status("Load failed")
 
 
 class _Tooltip:

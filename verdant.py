@@ -144,7 +144,7 @@ class ModelDownloader:
     """Handle model downloading with progress tracking and validation."""
     
     def __init__(self, model_dir: Optional[str] = None):
-        # For frozen apps, store models in LOCALAPPDATA/Velrdant/models to avoid temp dirs
+        # For frozen apps, store models in LOCALAPPDATA/Verdant/models to avoid temp dirs
         if model_dir is None:
             if getattr(sys, "frozen", False):
                 base = os.getenv("LOCALAPPDATA") or str(Path.home() / "AppData" / "Local")

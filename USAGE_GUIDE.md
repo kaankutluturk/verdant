@@ -4,225 +4,111 @@
 
 ## 🚀 Quick Start
 
-### **Step 1: Install Dependencies**
+### GUI (recommended)
+```bash
+# Windows packaged app
+VerdantApp.exe
+# Or from source
+python verdant_app.py
+```
+- First launch shows onboarding: Run Setup to download the model (~3.8GB) or enable Instant Demo (no download).
+- Use Settings (⚙) to adjust Temperature, Top‑p, and Context (capped in demo).
+- Try preset buttons: Paraphrase, Grammar fix, Summarize, Citation.
+
+### CLI
 ```bash
 pip install -r requirements.txt
-```
-
-### **Step 2: Test Installation**
-```bash
 python test_verdant.py
-```
-
-### **Step 3: Setup (Download Model)**
-```bash
 python verdant.py --setup
-```
-
-### **Step 4: Start Chatting**
-```bash
 python verdant.py --interactive
 ```
 
-> **💡 Environmental Note**: See [README.md](README.md) for details on Verdant's eco-conscious benefits.
+> **💡 Environmental Note**: See [README.md](README.md) for Verdant's eco benefits.
 
-## 📚 **Detailed Usage**
+## 📚 Detailed Usage
 
-### **Setup Commands**
-
-#### **Basic Setup**
+### Setup Commands
 ```bash
 python verdant.py --setup
-```
-
-#### **Setup with Specific Model**
-```bash
 python verdant.py --setup --model mistral-7b-q4
 ```
 
-### **Interactive Mode**
-
-#### **Start Interactive Chat**
+### Interactive Mode
 ```bash
 python verdant.py --interactive
-```
-
-#### **Interactive with Specific Model**
-```bash
 python verdant.py --interactive --model mistral-7b-q4
 ```
 
-### **Single Prompt Processing**
-
-#### **Process One Question**
+### Single Prompt
 ```bash
 python verdant.py --prompt "Your question here"
-```
-
-#### **Single Prompt with Model**
-```bash
 python verdant.py --prompt "Your question" --model mistral-7b-q4
 ```
 
-### **Help and Information**
+### Presets
+- GUI: Use sidebar buttons or type your prompt; selected preset will be prepended automatically.
+- CLI: `--preset paraphrase_academic|grammar_fix|concise_summary|citation_check` combined with `--prompt`.
 
-#### **Show Help**
+### Sessions
+- GUI: Save/Load chat as JSON from the sidebar.
+- CLI: `--load-session session.json` and `--save-session session.json`.
+
+### Benchmark
+- GUI: Click Benchmark in the header to run a quick tok/s check.
+- CLI: `--benchmark --benchmark-runs 1`.
+
+### Instant Demo Mode
+- GUI: Enable in Settings to try the app without downloading a model (canned streaming responses for a quick feel).
+
+## ⚙️ Performance Optimization
+
+### Automatic Hardware Detection
+Verdant detects RAM and CPU to set threads and context.
+
+- High (16GB+ RAM, 8+ cores): 4096 context
+- Medium (8GB+ RAM, 4+ cores): 2048 context
+- Low (<8GB RAM): 1024 context
+
+### Manual Tuning
 ```bash
-python verdant.py --help
-```
-
-#### **Show Version**
-```bash
-python verdant.py --version
-```
-
-## 🎯 **Academic Use Cases**
-
-### **1. Paraphrasing Text**
-**Input:** "The study shows social media affects students badly"
-**Command:** `python verdant.py --prompt "Paraphrase this: The study shows social media affects students badly"`
-**Output:** 🤖 Verdant: Here are some alternative phrasings:
-- "Research indicates social media platforms have detrimental impacts on student well-being"
-- "The research demonstrates that social media negatively influences students"
-- "Studies reveal that social media usage adversely affects student outcomes"
-
-### **2. Grammar Correction**
-**Input:** "There going to the libary tommorow"
-**Command:** `python verdant.py --prompt "Fix the grammar: There going to the libary tommorow"`
-**Output:** 🤖 Verdant: The correct version is: "They're going to the library tomorrow."
-
-### **3. Text Summarization**
-**Input:** [Long academic text]
-**Command:** `python verdant.py --prompt "Summarize this text in 2 sentences: [your text]"`
-**Output:** 🤖 Verdant: [concise summary in 2 sentences]
-
-## ⚙️ **Performance Optimization**
-
-### **Automatic Hardware Detection**
-Verdant automatically detects your system capabilities:
-
-- **High Performance** (16GB+ RAM, 8+ cores): 4096 context, max threads
-- **Medium Performance** (8GB+ RAM, 4+ cores): 2048 context, optimized threads  
-- **Low Performance** (<8GB RAM): 1024 context, conservative threads
-
-### **Manual Performance Tuning**
-```bash
-# High performance mode
 python verdant.py --interactive --threads 8 --context 4096
-
-# Conservative mode
 python verdant.py --interactive --threads 4 --context 1024
 ```
+In GUI, adjust in Settings. Demo builds cap context per capabilities.
 
-## 🔧 **Troubleshooting**
+## 🔧 Troubleshooting
 
-### **Common Issues**
+- "llama-cpp-python not installed": `pip install llama-cpp-python`
+- "Model not found": run Setup or enable Instant Demo in Settings.
+- Slow performance: close other apps; reduce Context and Temperature.
 
-#### **Model Not Found**
+## 📝 Advanced Usage
+
+- Batch prompts (CLI):
 ```bash
-# Download the model first
-python verdant.py --setup
+python verdant.py --prompt "First" 
+python verdant.py --prompt "Second"
+```
+- Academic writing assistant (CLI):
+```bash
+python verdant.py --preset paraphrase_academic --prompt "Improve this paragraph: ..."
 ```
 
-#### **Slow Performance**
-- Close other applications
-- Use lower context size: `--context 1024`
-- Reduce thread count: `--threads 4`
-
-#### **Memory Issues**
-- Ensure you have at least 8GB RAM
-- Close unnecessary applications
-- Use lower context size
-
-### **Performance Tips**
-1. **SSD Storage**: Faster model loading
-2. **Dedicated GPU**: Enable GPU acceleration if available
-3. **Background Apps**: Close other applications
-4. **Model Size**: Start with smaller models if RAM is limited
-
-## 📝 **Advanced Usage**
-
-### **Batch Processing**
-```bash
-# Process multiple questions
-python verdant.py --prompt "First question"
-python verdant.py --prompt "Second question"
-python verdant.py --prompt "Third question"
-```
-
-### **Academic Writing Assistant**
-```bash
-python verdant.py --prompt "You are an expert academic writer. Help me improve this paragraph: [your text]"
-```
-
-### **Custom Prompts**
-```bash
-python verdant.py --prompt "Act as a math tutor and explain calculus concepts simply"
-```
-
-## 🏗️ **Project Structure**
-
+## 🏗️ Project Structure
 ```
 verdant/
-├── verdant.py              # Main application
-├── test_verdant.py         # Test suite
-├── demo.py                 # Feature demonstration
-├── requirements.txt        # Python dependencies
-├── README.md              # Project overview and environmental benefits
-├── USAGE_GUIDE.md         # This detailed usage guide
-├── PROJECT_STATUS.md      # Development status and roadmap
-├── LICENSE                # MIT License
-├── .gitignore            # Git ignore rules
-├── install_and_test.ps1  # Windows installation
-├── install_and_test.bat  # Windows batch file
-├── setup_github.ps1      # GitHub setup script
-└── setup_github.bat      # GitHub setup batch
+├── verdant.py              # CLI core
+├── verdant_gui.py          # GUI app
+├── verdant_app.py          # GUI/CLI launcher
+├── requirements.txt
+├── README.md
+├── USAGE_GUIDE.md
+├── PROJECT_STATUS.md
+└── examples/
 ```
 
-## 🚀 **Next Steps**
+## 💰 Full Experience
+- Larger contexts, additional models, and GPU support are planned for premium builds.
 
-### **After Setup**
-1. **Test Installation**: `python test_verdant.py`
-2. **Download Model**: `python verdant.py --setup`
-3. **Start Chatting**: `python verdant.py --interactive`
-
-### **Explore Features**
-- Try different prompt styles
-- Test performance with various settings
-- Experiment with academic writing tasks
-
-## 💰 **Get the Full Experience**
-
-**This GitHub version is a demo with basic features. For the complete Verdant experience:**
-
-- Full performance with maximum context
-- Advanced models (13B, 30B, specialized)
-- Professional tools (GUI, batch processing, plugins)
-- Premium support and updates
-
-**Visit our website for the full version.**
-
----
-
-## 📚 **File Descriptions**
-
-- `verdant.py` - Main AI application with CLI interface
-- `test_verdant.py` - Run tests to verify functionality
-- `demo.py` - Feature demonstration without full model
-- `requirements.txt` - Python package dependencies
-- `README.md` - Project overview and environmental benefits
-- `USAGE_GUIDE.md` - This detailed usage guide
-- `PROJECT_STATUS.md` - Development progress and roadmap
-- `LICENSE` - MIT License terms
-- `install_and_test.ps1` - Windows PowerShell installation
-- `install_and_test.bat` - Windows batch installation
-- `setup_github.ps1` - GitHub repository setup
-- `setup_github.bat` - GitHub setup batch file
-
-## 🎯 **Support**
-
-- **Issues**: Report bugs on GitHub
-- **Documentation**: Check this guide and README
-- **Community**: Join discussions on GitHub
-
-**Happy learning with Verdant - the AI that cares about our planet! 🌱✨** 
+## 🎯 Support
+- Issues on GitHub. Docs here and in README. 
