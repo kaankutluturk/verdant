@@ -1,3 +1,4 @@
+
 # EcoAI Installation Guide
 
 ## Quick Install
